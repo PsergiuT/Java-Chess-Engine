@@ -1,15 +1,18 @@
 package chess.controller;
 
 import chess.bitboard.BitBoard;
+import chess.bitboard.MoveGenerator;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
 public class TestBitBoardController {
 
     private BitBoard board;
+    private MoveGenerator moveGenerator;
 
     @FXML
     private Label boardTitle;
@@ -40,6 +43,13 @@ public class TestBitBoardController {
     private Button blackQueenBtn;
     @FXML
     private Button blackKingBtn;
+    @FXML
+    private ComboBox<Integer> pawnPositionCombo;
+    @FXML
+    private ComboBox<Integer> kingPositionCombo;
+    @FXML
+    private ComboBox<Integer> knightPositionCombo;
+
 
 
     public void setBoard(BitBoard board){
@@ -49,7 +59,9 @@ public class TestBitBoardController {
 
     @FXML
     private void initialize(){
+        this.moveGenerator = new MoveGenerator();
         setupBoard();
+        setupComboBoxes();
     }
 
     private void setupBoard() {
@@ -70,6 +82,39 @@ public class TestBitBoardController {
     }
 
 
+    private void setupComboBoxes() {
+        // Populate all three ComboBoxes with values 1-64
+        for (int i = 1; i <= 64; i++) {
+            pawnPositionCombo.getItems().add(i);
+            kingPositionCombo.getItems().add(i);
+            knightPositionCombo.getItems().add(i);
+        }
+
+        // Add listeners to update board when selection changes
+        pawnPositionCombo.setOnAction(e -> {
+            Integer position = pawnPositionCombo.getValue();
+            if (position != null) {
+                drawPieces(position, moveGenerator.pawnMoves[position - 1]);
+            }
+        });
+
+        kingPositionCombo.setOnAction(e -> {
+            Integer position = kingPositionCombo.getValue();
+            if (position != null) {
+                drawPieces(position, moveGenerator.kingMoves[position - 1]);
+            }
+        });
+
+        knightPositionCombo.setOnAction(e -> {
+            Integer position = knightPositionCombo.getValue();
+            if (position != null) {
+                drawPieces(position, moveGenerator.knightMoves[position - 1]);
+            }
+        });
+    }
+
+
+
     private void drawPieces(long boardPieces){
         for(int i = 0; i < 64; i++){
             int piece = (int) (boardPieces & 1);
@@ -83,6 +128,34 @@ public class TestBitBoardController {
             // Get the label from the grid
             Label cell = (Label) boardGrid.getChildren().get(row * 8 + col);
             cell.setText(piece == 1 ? "1" : "0");
+
+            boardPieces >>= 1;
+        }
+    }
+
+    private void drawPieces(Integer position, long boardPieces){
+        for(int i = 0; i < 64; i++){
+            int piece = (int) (boardPieces & 1);
+
+            int row = 7 - (i / 8);
+            int col = i % 8;
+
+            // Get the label from the grid
+            Label cell = (Label) boardGrid.getChildren().get(row * 8 + col);
+
+            if(i + 1 == position){
+                // This is the selected position - make it white
+                cell.setStyle(cell.getStyle() + "; -fx-background-color: white;");
+            } else if(piece == 1) {
+                // This has a piece - make it red
+                cell.setStyle(cell.getStyle() + "; -fx-background-color: red;");
+            } else {
+                // Reset to checkerboard pattern
+                String color = (row + col) % 2 == 0 ? "#f0d9b5" : "#b58863";
+                cell.setStyle("-fx-background-color: " + color + "; -fx-border-color: black; -fx-font-size: 20px;");
+            }
+
+            cell.setText("" + (i + 1));
 
             boardPieces >>= 1;
         }

@@ -8,6 +8,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.Region?>
 
+<?import javafx.scene.control.ComboBox?>
 <HBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="chess.controller.TestBitBoardController"
@@ -15,61 +16,83 @@
       style="-fx-background-color: #2b2b2b; -fx-padding: 20;">
 
     <!-- Left side - Piece selection buttons -->
-    <VBox spacing="10" style="-fx-padding: 10;">
-        <Label text="White Pieces" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <HBox spacing="10" style="-fx-padding: 10;">
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <Label text="White Pieces" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
 
-        <Button fx:id="whitePawnBtn" text="White Pawns" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onWhitePawnClick"/>
+            <Button fx:id="whitePawnBtn" text="White Pawns" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onWhitePawnClick"/>
 
-        <Button fx:id="whiteRookBtn" text="White Rooks" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onWhiteRookClick"/>
+            <Button fx:id="whiteRookBtn" text="White Rooks" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onWhiteRookClick"/>
 
-        <Button fx:id="whiteKnightBtn" text="White Knights" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onWhiteKnightClick"/>
+            <Button fx:id="whiteKnightBtn" text="White Knights" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onWhiteKnightClick"/>
 
-        <Button fx:id="whiteBishopBtn" text="White Bishops" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onWhiteBishopClick"/>
+            <Button fx:id="whiteBishopBtn" text="White Bishops" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onWhiteBishopClick"/>
 
-        <Button fx:id="whiteQueenBtn" text="White Queen" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onWhiteQueenClick"/>
+            <Button fx:id="whiteQueenBtn" text="White Queen" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onWhiteQueenClick"/>
 
-        <Button fx:id="whiteKingBtn" text="White King" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onWhiteKingClick"/>
+            <Button fx:id="whiteKingBtn" text="White King" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onWhiteKingClick"/>
 
-        <Region prefHeight="20"/>
+            <Region prefHeight="20"/>
+        </VBox>
 
-        <Label text="Black Pieces" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <Label text="Black Pieces" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
 
-        <Button fx:id="blackPawnBtn" text="Black Pawns" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onBlackPawnClick"/>
+            <Button fx:id="blackPawnBtn" text="Black Pawns" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onBlackPawnClick"/>
 
-        <Button fx:id="blackRookBtn" text="Black Rooks" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onBlackRookClick"/>
+            <Button fx:id="blackRookBtn" text="Black Rooks" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onBlackRookClick"/>
 
-        <Button fx:id="blackKnightBtn" text="Black Knights" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onBlackKnightClick"/>
+            <Button fx:id="blackKnightBtn" text="Black Knights" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onBlackKnightClick"/>
 
-        <Button fx:id="blackBishopBtn" text="Black Bishops" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onBlackBishopClick"/>
+            <Button fx:id="blackBishopBtn" text="Black Bishops" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onBlackBishopClick"/>
 
-        <Button fx:id="blackQueenBtn" text="Black Queen" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onBlackQueenClick"/>
+            <Button fx:id="blackQueenBtn" text="Black Queen" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onBlackQueenClick"/>
 
-        <Button fx:id="blackKingBtn" text="Black King" prefWidth="150" prefHeight="40"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
-                onAction="#onBlackKingClick"/>
-    </VBox>
+            <Button fx:id="blackKingBtn" text="Black King" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                    onAction="#onBlackKingClick"/>
+        </VBox>
+
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <VBox spacing="5">
+                <Label text="Pawn Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="pawnPositionCombo" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="King Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="kingPositionCombo" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Knight Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="knightPositionCombo" prefWidth="150" promptText="Select position"/>
+            </VBox>
+        </VBox>
+
+    </HBox>
 
     <!-- Right side - 8x8 Board Grid -->
     <VBox spacing="10" alignment="CENTER">
