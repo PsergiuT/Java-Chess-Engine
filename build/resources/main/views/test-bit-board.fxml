@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.Region?>
+
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="chess.controller.TestBitBoardController"
+      spacing="20"
+      style="-fx-background-color: #2b2b2b; -fx-padding: 20;">
+
+    <!-- Left side - Piece selection buttons -->
+    <VBox spacing="10" style="-fx-padding: 10;">
+        <Label text="White Pieces" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+        <Button fx:id="whitePawnBtn" text="White Pawns" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onWhitePawnClick"/>
+
+        <Button fx:id="whiteRookBtn" text="White Rooks" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onWhiteRookClick"/>
+
+        <Button fx:id="whiteKnightBtn" text="White Knights" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onWhiteKnightClick"/>
+
+        <Button fx:id="whiteBishopBtn" text="White Bishops" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onWhiteBishopClick"/>
+
+        <Button fx:id="whiteQueenBtn" text="White Queen" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onWhiteQueenClick"/>
+
+        <Button fx:id="whiteKingBtn" text="White King" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onWhiteKingClick"/>
+
+        <Region prefHeight="20"/>
+
+        <Label text="Black Pieces" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+        <Button fx:id="blackPawnBtn" text="Black Pawns" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onBlackPawnClick"/>
+
+        <Button fx:id="blackRookBtn" text="Black Rooks" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onBlackRookClick"/>
+
+        <Button fx:id="blackKnightBtn" text="Black Knights" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onBlackKnightClick"/>
+
+        <Button fx:id="blackBishopBtn" text="Black Bishops" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onBlackBishopClick"/>
+
+        <Button fx:id="blackQueenBtn" text="Black Queen" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onBlackQueenClick"/>
+
+        <Button fx:id="blackKingBtn" text="Black King" prefWidth="150" prefHeight="40"
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;"
+                onAction="#onBlackKingClick"/>
+    </VBox>
+
+    <!-- Right side - 8x8 Board Grid -->
+    <VBox spacing="10" alignment="CENTER">
+        <Label fx:id="boardTitle" text="Select a piece type"
+               style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+        <GridPane fx:id="boardGrid" hgap="2" vgap="2"
+                  style="-fx-background-color: #1a1a1a; -fx-padding: 10;">
+            <!-- Grid cells will be populated programmatically -->
+        </GridPane>
+    </VBox>
+
+</HBox>

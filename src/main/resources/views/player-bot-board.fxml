@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="chess.controller.PlayerBotController"
+            style="-fx-background-color: #2b2b2b;">
+
+    <!-- Top - Black Player Info -->
+    <top>
+        <VBox alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+            <Label text="Black (Bot)" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <Label fx:id="blackTimerLabel" text="10:00"
+                   style="-fx-text-fill: #e74c3c; -fx-font-size: 32px; -fx-font-weight: bold;"/>
+        </VBox>
+    </top>
+
+    <!-- Center - Chess Board -->
+    <center>
+        <StackPane alignment="CENTER" style="-fx-padding: 20;">
+            <GridPane fx:id="chessBoard" hgap="0" vgap="0"
+                      style="-fx-background-color: #1a1a1a; -fx-padding: 10;">
+                <!-- 8x8 grid cells will be populated programmatically -->
+            </GridPane>
+        </StackPane>
+    </center>
+
+    <!-- Bottom - White Player Info -->
+    <bottom>
+        <VBox alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+            <Label fx:id="whiteTimerLabel" text="10:00"
+                   style="-fx-text-fill: #4a90e2; -fx-font-size: 32px; -fx-font-weight: bold;"/>
+            <Label text="White (You)" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+        </VBox>
+    </bottom>
+
+    <!-- Right - Game Status Info -->
+    <right>
+        <VBox spacing="15" style="-fx-padding: 20; -fx-pref-width: 200;">
+            <Label text="Game Status" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+            <VBox spacing="5">
+                <Label text="Current Turn:" style="-fx-text-fill: #cccccc; -fx-font-size: 14px;"/>
+                <Label fx:id="currentTurnLabel" text="White"
+                       style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Move Count:" style="-fx-text-fill: #cccccc; -fx-font-size: 14px;"/>
+                <Label fx:id="moveCountLabel" text="0"
+                       style="-fx-text-fill: white; -fx-font-size: 16px;"/>
+            </VBox>
+
+        </VBox>
+    </right>
+
+</BorderPane>
