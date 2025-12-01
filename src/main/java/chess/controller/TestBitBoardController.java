@@ -44,11 +44,19 @@ public class TestBitBoardController {
     @FXML
     private Button blackKingBtn;
     @FXML
-    private ComboBox<Integer> pawnPositionCombo;
+    private ComboBox<Integer> whitePawnPositionCombo;
+    @FXML
+    private ComboBox<Integer> blackPawnPositionCombo;
     @FXML
     private ComboBox<Integer> kingPositionCombo;
     @FXML
     private ComboBox<Integer> knightPositionCombo;
+    @FXML
+    private ComboBox<Integer> bishopPositionCombo;
+    @FXML
+    private ComboBox<Integer> rookPositionCombo;
+    @FXML
+    private ComboBox<Integer> queenPositionCombo;
 
 
 
@@ -85,16 +93,27 @@ public class TestBitBoardController {
     private void setupComboBoxes() {
         // Populate all three ComboBoxes with values 1-64
         for (int i = 1; i <= 64; i++) {
-            pawnPositionCombo.getItems().add(i);
+            whitePawnPositionCombo.getItems().add(i);
+            blackPawnPositionCombo.getItems().add(i);
             kingPositionCombo.getItems().add(i);
             knightPositionCombo.getItems().add(i);
+            bishopPositionCombo.getItems().add(i);
+            rookPositionCombo.getItems().add(i);
+            queenPositionCombo.getItems().add(i);
         }
 
         // Add listeners to update board when selection changes
-        pawnPositionCombo.setOnAction(e -> {
-            Integer position = pawnPositionCombo.getValue();
+        whitePawnPositionCombo.setOnAction(e -> {
+            Integer position = whitePawnPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.pawnMoves[position - 1]);
+                drawPieces(position, moveGenerator.whitePawnMoves[position - 1]);
+            }
+        });
+
+        blackPawnPositionCombo.setOnAction(e -> {
+            Integer position = blackPawnPositionCombo.getValue();
+            if (position != null) {
+                drawPieces(position, moveGenerator.blackPawnMoves[position - 1]);
             }
         });
 
@@ -104,6 +123,29 @@ public class TestBitBoardController {
                 drawPieces(position, moveGenerator.kingMoves[position - 1]);
             }
         });
+
+        bishopPositionCombo.setOnAction(e -> {
+            Integer position = bishopPositionCombo.getValue();
+            if (position != null) {
+                drawPieces(position, moveGenerator.bishopMoves[position - 1]);
+            }
+        });
+
+        rookPositionCombo.setOnAction(e -> {
+            Integer position = rookPositionCombo.getValue();
+            if (position != null) {
+                drawPieces(position, moveGenerator.rookMoves[position - 1]);
+            }
+        });
+
+
+        queenPositionCombo.setOnAction(e -> {
+            Integer position = queenPositionCombo.getValue();
+            if (position != null) {
+                drawPieces(position, moveGenerator.queenMoves[position - 1]);
+            }
+        });
+
 
         knightPositionCombo.setOnAction(e -> {
             Integer position = knightPositionCombo.getValue();
@@ -138,7 +180,7 @@ public class TestBitBoardController {
             int piece = (int) (boardPieces & 1);
 
             int row = 7 - (i / 8);
-            int col = i % 8;
+            int col = 7 - (i % 8);
 
             // Get the label from the grid
             Label cell = (Label) boardGrid.getChildren().get(row * 8 + col);

@@ -5,7 +5,6 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.Region?>
 
 <?import javafx.scene.control.ComboBox?>
@@ -76,9 +75,31 @@
         </VBox>
 
         <VBox spacing="10" style="-fx-padding: 10;">
+
             <VBox spacing="5">
-                <Label text="Pawn Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
-                <ComboBox fx:id="pawnPositionCombo" prefWidth="150" promptText="Select position"/>
+                <Label text="Rook Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="rookPositionCombo" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
+
+            <VBox spacing="5">
+                <Label text="Bishop Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="bishopPositionCombo" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Queen Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="queenPositionCombo" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="White Pawn Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="whitePawnPositionCombo" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Black Pawn Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="blackPawnPositionCombo" prefWidth="150" promptText="Select position"/>
             </VBox>
 
             <VBox spacing="5">
