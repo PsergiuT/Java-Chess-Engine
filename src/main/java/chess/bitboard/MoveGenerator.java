@@ -227,8 +227,6 @@ public class MoveGenerator {
             }
 
         }
-
-
     }
 
 
@@ -273,8 +271,26 @@ public class MoveGenerator {
 
     private void generateKnightMoves(BitBoard board, MoveList moves){
         //find all knights on the board for the given color
-        //see if ally pieces block any of the pregenerated moves or if any of the enemy pieces result in a capture move
-        //construct the moves (from, to ,
+        if(board.isWhiteTurn){
+            long b = board.getWhiteKnightBoard();
+            long secondKnight = b & (b - 1);
+            long firstKnight = b & ~secondKnight;
+
+            //contains legal moves excluding conflicting allay pieces
+            long LegalMoves = knightMoves[Long.numberOfTrailingZeros(firstKnight)] & ~(board.getWhitePieces());
+
+            //determine conflicting enemy pieces and create moves with capture/check flag
+            //create moves with check flag
+
+
+
+
+            //Long.numberOfTrailingZeros(secondKnight);
+        }else{
+
+        }
+        //see if allay pieces block any of the pregenerated moves or if any of the enemy pieces result in a capture move
+        //construct the moves (from, to ,piece, promotion, flags)
     }
 
     private void generateBishopMoves(BitBoard board, MoveList moves){
@@ -294,5 +310,7 @@ public class MoveGenerator {
     private void generateSlidingMoves(BitBoard board){
 
     }
+
+
 }
 
