@@ -2,581 +2,169 @@ package chess.bitboard;
 
 import chess.move.Move;
 
-public class BitBoard implements Board{
-    private long whitePawnBoard;
-    private long whiteRookBoard;
-    private long whiteKnightBoard;
-    private long whiteBishopBoard;
-    private long whiteQueenBoard;
-    private long whiteKingBoard;
+public class BitBoard implements Board {
+    private final long[] board = new long[14];
 
-    private long blackPawnBoard;
-    private long blackRookBoard;
-    private long blackKnightBoard;
-    private long blackBishopBoard;
-    private long blackQueenBoard;
-    private long blackKingBoard;
-
-    private long numberOfMovesLeft;
-
-    private long whitePieces;
-    private long blackPieces;
-
-    public long getWhitePieces(){
-        return whiteKingBoard | whiteQueenBoard | whiteBishopBoard | whitePawnBoard | whiteRookBoard | whiteKnightBoard;
-    }
-
-    public long getBlackPieces(){
-        return blackKingBoard | blackPawnBoard | blackRookBoard |  blackQueenBoard | blackBishopBoard | blackKnightBoard;
-    }
-
+    private int numberOfMovesLeft;
 
     public boolean isWhiteTurn;
+    public boolean isCheckMate;
     private Double timeLeftForWhite;
     private Double timeLeftForBlack;
 
-    public long getWhitePawnBoard() {
-        return whitePawnBoard;
+    public Double getTimeForWhite() {
+        return timeLeftForWhite;
     }
 
-    public long getWhiteRookBoard() {
-        return whiteRookBoard;
+    public Double getTimeForBlack() {
+        return timeLeftForBlack;
+    }
+
+    public int getMovesLeft() {
+        return  numberOfMovesLeft;
+    }
+
+    public long getWhitePawnBoard() {
+        return board[0];
     }
 
     public long getWhiteKnightBoard() {
-        return whiteKnightBoard;
+        return board[1];
+    }
+
+    public long getWhiteRookBoard() {
+        return board[2];
     }
 
     public long getWhiteBishopBoard() {
-        return whiteBishopBoard;
-    }
-
-    public long getWhiteKingBoard() {
-        return whiteKingBoard;
+        return board[3];
     }
 
     public long getWhiteQueenBoard() {
-        return whiteQueenBoard;
+        return board[4];
     }
+
+    public long getWhiteKingBoard() {
+        return board[5];
+    }
+
 
     public long getBlackPawnBoard() {
-        return blackPawnBoard;
-    }
-
-    public long getBlackRookBoard() {
-        return blackRookBoard;
+        return board[8];
     }
 
     public long getBlackKnightBoard() {
-        return blackKnightBoard;
+        return board[9];
     }
 
-    public long getBlackQueenBoard() {
-        return blackQueenBoard;
+    public long getBlackRookBoard() {
+        return board[10];
     }
 
     public long getBlackBishopBoard() {
-        return blackBishopBoard;
+        return board[11];
+    }
+
+    public long getBlackQueenBoard() {
+        return board[12];
     }
 
     public long getBlackKingBoard() {
-        return blackKingBoard;
+        return board[13];
+    }
+
+    public long getWhitePieces() {
+        return board[6];
+    }
+
+    public long getBlackPieces() {
+        return board[7];
     }
 
 
-
-    public BitBoard(){
+    public BitBoard(double time, int numberOfMoves) {
         isWhiteTurn = true;
-        timeLeftForWhite = 10.0;
-        timeLeftForBlack = 10.0;
+        isCheckMate = false;
+        timeLeftForWhite = time;
+        timeLeftForBlack = time;
 
-        whitePawnBoard |= 255 << 8;
-        whiteRookBoard |= 0b10000001;
-        whiteKnightBoard |= 0b01000010;
-        whiteBishopBoard |= 0b00100100;
-        whiteQueenBoard |= 0b00001000;
-        whiteKingBoard |= 0b00010000;
+        board[0] |= 255 << 8;          //Pawn
+        board[1] |= 0b01000010;        //Knight
+        board[2] |= 0b10000001;        //Rook
+        board[3] |= 0b00100100;        //Bishop
+        board[4] |= 0b00010000;        //Queen
+        board[5] |= 0b00001000;        //King
+        board[6] = board[0] | board[1] | board[2] | board[3] | board[4] | board[5];
 
-        blackPawnBoard |= whitePawnBoard << 8*5;
-        blackRookBoard |= whiteRookBoard << 8*7;
-        blackKnightBoard |= whiteKnightBoard << 8*7;
-        blackBishopBoard |= whiteBishopBoard << 8*7;
-        blackQueenBoard |= whiteQueenBoard << 8*7;
-        blackKingBoard |= whiteKingBoard << 8*7;
 
-        whitePieces = whitePawnBoard | whiteRookBoard | whiteKnightBoard | whiteBishopBoard | whiteQueenBoard | whiteKingBoard;
-        blackPieces = blackPawnBoard | blackRookBoard | blackKnightBoard | blackBishopBoard | blackQueenBoard | blackKingBoard;
+        board[8] |= board[0] << 8 * 5;      //Pawn
+        board[9] |= board[1] << 8 * 7;      //Knight
+        board[10] |= board[2] << 8 * 7;      //Rook
+        board[11] |= board[3] << 8 * 7;      //Bishop
+        board[12] |= board[4] << 8 * 7;      //Queen
+        board[13] |= board[5] << 8 * 7;      //King
+        board[7] = board[8] | board[9] | board[10] | board[11] | board[12] | board[13];
 
-        numberOfMovesLeft = 200;
+        this.numberOfMovesLeft = numberOfMoves;
     }
 
 
-    public void makeMove(int move){
+    public void makeMove(int move) {
         //no need to validate
-
-
-        //TODO implement castling
-
-        int piece = Move.getPiece(move);
-
-        switch(piece){
-            case 1:
-                //pawn
-                movePawn(move);
-                break;
-
-            case 2:
-                //knight
-                moveKnight(move);
-                break;
-
-            case 3:
-                //rook
-                moveRook(move);
-                break;
-
-            case 4:
-                //bishop
-                moveBishop(move);
-                break;
-
-            case 5:
-                //queen
-                moveQueen(move);
-                break;
-
-            case 6:
-                //king
-                moveKing(move);
-                break;
-
-            default:
-                break;
-        }
-
+        //just need to update the board
+        move(move);
 
         isWhiteTurn = !isWhiteTurn;
+        numberOfMovesLeft--;
     }
 
 
-    private void movePawn(int move){
-        if(isWhiteTurn){
-            whitePawnBoard &= ~(1L << Move.getFrom(move));
-            whitePawnBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                if(Move.isEnPassant(move)){
-                    switch(capturedPiece){
-                        case 1:
-                            blackPawnBoard &= ~(1L << (Move.getTo(move) - 8));
-                            break;
+    private void captureEnPassant(int move) {
+        if (isWhiteTurn) board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move) - 8));
+        else board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move) + 8));
 
-                        case 2:
-                            blackKnightBoard &= ~(1L << (Move.getTo(move) - 8));
-                            break;
-
-                        case 3:
-                            blackRookBoard &= ~(1L << (Move.getTo(move) - 8));
-                            break;
-
-                        case 4:
-                            blackBishopBoard &= ~(1L << (Move.getTo(move) - 8));
-                            break;
-
-                        case 5:
-                            blackQueenBoard &= ~(1L << (Move.getTo(move) - 8));
-                            break;
-
-                    }
-                }else{
-                    switch(capturedPiece){
-                        case 1:
-                            blackPawnBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                        case 2:
-                            blackKnightBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                        case 3:
-                            blackRookBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                        case 4:
-                            blackBishopBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                        case 5:
-                            blackQueenBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                    }
-                }
-
-            }
-        }
-        else{
-            blackPawnBoard &= ~(1L << Move.getFrom(move));
-            blackPawnBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                if(Move.isEnPassant(move)){
-                    switch(capturedPiece){
-                        case 1:
-                            whitePawnBoard &= ~(1L << (Move.getTo(move) + 8));
-                            break;
-
-                        case 2:
-                            whiteKnightBoard &= ~(1L << (Move.getTo(move) + 8));
-                            break;
-
-                        case 3:
-                            whiteRookBoard &= ~(1L << (Move.getTo(move) + 8));
-                            break;
-
-                        case 4:
-                            whiteBishopBoard &= ~(1L << (Move.getTo(move) + 8));
-                            break;
-
-                        case 5:
-                            whiteQueenBoard &= ~(1L << (Move.getTo(move) + 8));
-                            break;
-
-                    }
-                }else{
-                    switch(capturedPiece){
-                        case 1:
-                            whitePawnBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                        case 2:
-                            whiteKnightBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                        case 3:
-                            whiteRookBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                        case 4:
-                            whiteBishopBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                        case 5:
-                            whiteQueenBoard &= ~(1L << Move.getTo(move));
-                            break;
-
-                    }
-                }
-            }
-
-        }
     }
 
-
-
-    private void moveKnight(int move){
-        if(isWhiteTurn){
-            whiteKnightBoard &= ~(1L << Move.getFrom(move));
-            whiteKnightBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        blackPawnBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 2:
-                        blackKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        blackRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        blackBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        blackQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
-            }
-        }
-        else{
-            blackKnightBoard &= ~(1L << Move.getFrom(move));
-            blackKnightBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        whitePawnBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 2:
-                        whiteKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        whiteRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        whiteBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        whiteQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
-            }
-        }
-    }
-    private void moveRook(int move){
-
-        if(isWhiteTurn){
-            whiteRookBoard &= ~(1L << Move.getFrom(move));
-            whiteRookBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        blackPawnBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 2:
-                        blackKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        blackRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        blackBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        blackQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
-            }
-        }
-        else{
-            blackRookBoard &= ~(1L << Move.getFrom(move));
-            blackRookBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        whitePawnBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 2:
-                        whiteKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        whiteRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        whiteBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        whiteQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
-            }
-        }
-    }
-    private void moveBishop(int move){
-        if(isWhiteTurn){
-            whiteBishopBoard &= ~(1L << Move.getFrom(move));
-            whiteBishopBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        blackPawnBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 2:
-                        blackKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        blackRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        blackBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        blackQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
-            }
-        }
-        else{
-            blackBishopBoard &= ~(1L << Move.getFrom(move));
-            blackBishopBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        whitePawnBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 2:
-                        whiteKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        whiteRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        whiteBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        whiteQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
-            }
-        }
+    private void capturePiece(int move) {
+        board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move)));
     }
 
-    private void moveQueen(int move){
-        if(isWhiteTurn){
-            whiteQueenBoard &= ~(1L << Move.getFrom(move));
-            whiteQueenBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        blackPawnBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 2:
-                        blackKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        blackRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        blackBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        blackQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
-            }
-        }
-        else{
-            blackQueenBoard &= ~(1L << Move.getFrom(move));
-            blackQueenBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        whitePawnBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 2:
-                        whiteKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        whiteRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        whiteBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        whiteQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
-            }
-        }
+    private void movePiece(int move) {
+        board[Move.getPiece(move)] &= ~(1L << Move.getFrom(move));
+        board[Move.getPiece(move)] |= 1L << Move.getTo(move);
     }
 
+    private void move(int move) {
+        movePiece(move);
 
-    private void moveKing(int move){
-        if(isWhiteTurn){
-            whiteKingBoard &= ~(1L << Move.getFrom(move));
-            whiteKingBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        blackPawnBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 2:
-                        blackKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        blackRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        blackBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        blackQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
-            }
+        if (Move.isCapture(move)) {
+            if (Move.isEnPassant(move)) captureEnPassant(move);
+            else capturePiece(move);
+            return;
         }
-        else{
-            blackKingBoard &= ~(1L << Move.getFrom(move));
-            blackKingBoard |= 1L << Move.getTo(move);
-            if(Move.isCapture(move)){
-                int capturedPiece = Move.getCapture(move);
-                switch(capturedPiece){
-                    case 1:
-                        whitePawnBoard &= ~(1L << Move.getTo(move));
-                        break;
 
-                    case 2:
-                        whiteKnightBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 3:
-                        whiteRookBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 4:
-                        whiteBishopBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                    case 5:
-                        whiteQueenBoard &= ~(1L << Move.getTo(move));
-                        break;
-
-                }
+        if (Move.isCastling(move)) {
+            if((board[Move.getPiece(move)] & (0x8000000000000080L)) != 0){
+                //if rook on the left
+                //move king(+3) on the left
+                board[Move.getPiece(move) + 3] = board[Move.getPiece(move)] << 2;
+            }else{
+                //if rook on the right
+                //move king(+3) on the right
+                board[Move.getPiece(move) + 3] = board[Move.getPiece(move)] >> 2;
             }
+            return;
+        }
+
+        if (Move.isPromotion(move)) {
+            //replace the pawn with the new queen (+4)
+            board[Move.getPiece(move) + 4] |= 1L << Move.getTo(move);
+            board[Move.getPiece(move)] &= ~(1L << Move.getTo(move));
+            return;
+        }
+
+        if (Move.isCheckMate(move)) {
+            isCheckMate = true;
         }
     }
-
 }

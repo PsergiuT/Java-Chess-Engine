@@ -212,7 +212,7 @@ public class PlayerBotController {
 
     @FXML
     private void initialize(){
-        board = new BitBoard();
+        board = new BitBoard(10, 200);
         loadPieceImages();
         setupBoard();
         updateBoardDisplay();

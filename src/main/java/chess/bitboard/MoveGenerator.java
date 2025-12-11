@@ -276,6 +276,8 @@ public class MoveGenerator {
             long secondKnight = b & (b - 1);
             long firstKnight = b & ~secondKnight;
 
+            if(firstKnight == 0 && secondKnight == 0) return;
+
             //contains legal moves excluding conflicting allay pieces
             long LegalMoves = knightMoves[Long.numberOfTrailingZeros(firstKnight)] & ~(board.getWhitePieces());
 

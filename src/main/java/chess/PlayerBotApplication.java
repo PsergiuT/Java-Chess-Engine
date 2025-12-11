@@ -18,7 +18,7 @@ public class PlayerBotApplication extends Application {
         stage.setTitle("Player Bot Page");
         stage.setScene(scene);
 
-        BitBoard board = new BitBoard();
+        //BitBoard board = new BitBoard();
         PlayerBotController controller = fxmlLoader.getController();
         //controller.setBoard(board);
 

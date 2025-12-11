@@ -165,7 +165,7 @@ public class TestBitBoardController {
             // Calculate row and column
             // i goes 0-63, where 0 is bottom-left (a1), 63 is top-right (h8)
             int row = 7 - (i / 8);  // Reverse row: bottom to top becomes top to bottom for GridPane
-            int col = i % 8;        // Left to right
+            int col = 7 - i % 8;        // Left to right
 
             // Get the label from the grid
             Label cell = (Label) boardGrid.getChildren().get(row * 8 + col);
