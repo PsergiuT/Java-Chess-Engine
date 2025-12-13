@@ -81,6 +81,18 @@ public class BitBoard implements Board {
         return board[7];
     }
 
+    public long getWhiteSlidingPieces() {
+        return board[2] | board[3] | board[4];
+    }
+
+    public long getBlackSlidingPieces() {
+        return board[10] | board[11] | board[12];
+    }
+
+    public long[] getBoard(){
+        return board;
+    }
+
 
     public BitBoard(double time, int numberOfMoves) {
         isWhiteTurn = true;

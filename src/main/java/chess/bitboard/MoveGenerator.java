@@ -11,9 +11,21 @@ public class MoveGenerator {
     public final long[] queenMoves = new long[64];
     public final long[] bishopMoves = new long[64];
     public final long[] rookMoves = new long[64];
+
+    public final long[] pinnedPieces = new long[64];
+    public final long[][] rayMovement = new long[64][64];
+    public long pinnedMaskBoard;
+    public long checkMask;
     private final long[][] precomputedDirections = new long[8][64]; //0, 1, 2, 3 are for Orthogonal directions, 4, 5, 6, 7 are for Diagonal directions
 
     private boolean isWhite;
+
+
+
+    //-----------------------------------------------------------------------------------------------------------------------
+    //                                  Precomputed boards ( ALL TESTED )
+    //-----------------------------------------------------------------------------------------------------------------------
+
 
     private void precomputeKnightMoves(){
         long FileA = 0x8080808080808080L;
@@ -230,6 +242,145 @@ public class MoveGenerator {
     }
 
 
+    private void precomputeRayMovement(){
+
+        //TODO NEEDS REFACTORING ASAP :))
+        long FileA = 0x8080808080808080L;
+        long FileH = 0x0101010101010101L;
+        long Rank1 = 0x00000000000000FFL;
+        long Rank8 = 0xFF00000000000000L;
+
+        int index = 1;
+
+        for(int i = 0; i < 64; i++){
+            long piece = 1L << i;
+            //generate Orthogonal directions ----------------------------------------------------------
+
+            //go west (0)
+            if((piece & FileA) == 0){
+                while (((piece << index) & FileA) == 0){
+                    if(index - 2 < 0){
+                        index ++;
+                        continue;
+                    }
+                    rayMovement[i][Long.numberOfTrailingZeros(piece << index)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece << index - 1)]) | (piece << index - 1);
+                    index ++;
+                }
+                rayMovement[i][Long.numberOfTrailingZeros(piece << index)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece << index - 1)]) | (piece << index - 1);
+                index = 1;
+            }
+
+            //go north (1)
+            if((piece & Rank8) == 0){
+                while (((piece << index * 8) & Rank8) == 0){
+                    if(index - 2 < 0){
+                        index ++;
+                        continue;
+                    }
+                    rayMovement[i][Long.numberOfTrailingZeros(piece << index * 8)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece << (index - 1) * 8)]) | (piece << (index - 1) * 8);
+                    index ++;
+                }
+                rayMovement[i][Long.numberOfTrailingZeros(piece << index * 8)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece << (index - 1) * 8)]) | (piece << (index - 1) * 8);
+                index = 1;
+            }
+
+
+            //go east (2)
+            if((piece & FileH) == 0){
+                while (((piece >>> index) & FileH) == 0){
+                    if(index - 2 < 0){
+                        index ++;
+                        continue;
+                    }
+                    rayMovement[i][Long.numberOfTrailingZeros(piece >>> index)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece >>> index - 1)]) | (piece >>> (index - 1));
+                    index ++;
+                }
+                rayMovement[i][Long.numberOfTrailingZeros(piece >>> index)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece >>> index - 1)]) | (piece >>> (index - 1));
+                index = 1;
+            }
+
+
+            //go south (3)
+            if((piece & Rank1) == 0){
+                while (((piece >>> index * 8) & Rank1) == 0){
+                    if(index - 2 < 0){
+                        index ++;
+                        continue;
+                    }
+                    rayMovement[i][Long.numberOfTrailingZeros(piece >>> index * 8)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece >>> (index - 1) * 8)]) | (piece >>> (index - 1) * 8);
+                    index ++;
+                }
+                rayMovement[i][Long.numberOfTrailingZeros(piece >>> index * 8)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece >>> (index - 1) * 8)]) | (piece >>> (index - 1) * 8);
+                index = 1;
+            }
+
+
+
+            //generate Diagonal directions  -----------------------------------------------------------------
+
+            //go north west (4)
+            if((piece & (FileA | Rank8)) == 0){
+                while (((piece << index * 9) & (FileA | Rank8)) == 0){
+                    if(index - 2 < 0){
+                        index ++;
+                        continue;
+                    }
+                    rayMovement[i][Long.numberOfTrailingZeros(piece << index * 9)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece << (index - 1) * 9)]) | (piece << (index - 1) * 9);
+                    index ++;
+                }
+                rayMovement[i][Long.numberOfTrailingZeros(piece << index * 9)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece << (index - 1) * 9)]) | (piece << (index - 1) * 9);
+                index = 1;
+            }
+
+
+            //go north east (5)
+            if((piece & (FileH | Rank8)) == 0){
+                while (((piece << index * 7) & (FileH | Rank8)) == 0){
+                    if(index - 2 < 0){
+                        index ++;
+                        continue;
+                    }
+                    rayMovement[i][Long.numberOfTrailingZeros(piece << index * 7)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece << (index - 1) * 7)]) | (piece << (index - 1) * 7);
+                    index ++;
+                }
+                rayMovement[i][Long.numberOfTrailingZeros(piece << index * 7)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece << (index - 1) * 7)]) | (piece << (index - 1) * 7);
+                index = 1;
+            }
+
+
+            //go south east (6)
+            if((piece & (FileH | Rank1)) == 0){
+                while (((piece >>> index * 9) & (FileH | Rank1)) == 0){
+                    if(index - 2 < 0){
+                        index ++;
+                        continue;
+                    }
+                    rayMovement[i][Long.numberOfTrailingZeros(piece >>> index * 9)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece >>> (index - 1) * 9)]) | (piece >>> (index - 1) * 9);
+                    index ++;
+                }
+                rayMovement[i][Long.numberOfTrailingZeros(piece >>> index * 9)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece >>> (index - 1) * 9)]) | (piece >>> (index - 1) * 9);
+                index = 1;
+            }
+
+
+            //go south west (7)
+            if((piece & (FileA | Rank1)) == 0){
+                while (((piece >>> index * 7) & (FileA | Rank1)) == 0){
+                    if(index - 2 < 0){
+                        index ++;
+                        continue;
+                    }
+                    rayMovement[i][Long.numberOfTrailingZeros(piece >>> index * 7)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece >>> (index - 1) * 7)]) | (piece >>> (index - 1) * 7);
+                    index ++;
+                }
+                rayMovement[i][Long.numberOfTrailingZeros(piece >>> index * 7)] |= (rayMovement[i][Long.numberOfTrailingZeros(piece >>> (index - 1) * 7)]) | (piece >>> (index - 1) * 7);
+                index = 1;
+            }
+
+        }
+    }
+
+
 
     public MoveGenerator(){
         precomputeKnightMoves();
@@ -237,6 +388,7 @@ public class MoveGenerator {
         precomputeWhitePawnMoves();
         precomputeBlackPawnMoves();
         precomputeSlidingMoves();
+        precomputeRayMovement();
         for(int i = 0; i < 64; i++)
         {
             rookMoves[i] = precomputedDirections[0][i] | precomputedDirections[1][i] | precomputedDirections[2][i] | precomputedDirections[3][i];
@@ -249,9 +401,139 @@ public class MoveGenerator {
         //rook
     }
 
+
+
+
+
+
+    //-----------------------------------------------------------------------------------------------------------------------
+    //                                  Pinned and Check Mask calculation + isCheck()
+    //-----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+    private void calculatePinnedMask(BitBoard board){
+        long result = 0;
+        int kingIndex;
+        long allyPieces;
+        if(isWhite){
+            kingIndex = Long.numberOfTrailingZeros(board.getWhiteKingBoard());
+            result |= board.getWhiteSlidingPieces();                                                //sliding pcs mask
+            result |= queenMoves[kingIndex];                                                        //queen mask for king pos
+            allyPieces = board.getWhitePieces();
+        }
+        else {
+            kingIndex = Long.numberOfTrailingZeros(board.getBlackKingBoard());
+            result |= board.getBlackSlidingPieces();
+            result |= queenMoves[kingIndex];
+            allyPieces = board.getBlackPieces();
+        }
+
+        if(result == 0) return;
+
+        this.pinnedMaskBoard = 0;
+        while(result != 0){
+            long ray = rayMovement[kingIndex][Long.numberOfTrailingZeros(result)];
+            ray |= (1L << Long.numberOfTrailingZeros(result));                      //add enemy the piece from result to ray
+            result &= (result - 1);
+
+            long Hits = ray & allyPieces;                                           //all the  ally pieces that are in the ray
+            if(Long.bitCount(Hits) == 1){
+                pinnedPieces[Long.numberOfTrailingZeros(Hits)] = ray;               //store the bitmap of the places where the pinned piece can go
+                pinnedMaskBoard |= Hits;                                            //store a map of all the ally pieces that are pinned
+            }
+        }
+
+        //TODO check for en passant move
+
+
+    }
+
+
+
+
+
+    private boolean calculateCheckMask(BitBoard board){
+        //update the checkMask
+        int kingIndex;
+        int startingIndex;
+        long pawnBoard;
+        long slidingAttacks = 0;
+        if(isWhite){
+            kingIndex = Long.numberOfTrailingZeros(board.getWhiteKingBoard());
+            startingIndex = 0;
+            pawnBoard = whitePawnMoves[kingIndex];
+            slidingAttacks = board.getBlackSlidingPieces() | queenMoves[kingIndex];
+        }
+        else {
+            kingIndex = Long.numberOfTrailingZeros(board.getBlackKingBoard());
+            startingIndex = 8;
+            pawnBoard = blackPawnMoves[kingIndex];
+            slidingAttacks = board.getWhiteSlidingPieces() | queenMoves[kingIndex];
+        }
+
+
+        //----------calculate knight + pawn attacks----------
+        long attackingMap = knightMoves[kingIndex] | board.getBoard()[startingIndex + 1];
+        attackingMap |= pawnBoard | board.getBoard()[startingIndex];
+
+        //----------calculate sliding moves----------
+
+        while(slidingAttacks != 0){
+            long ray = rayMovement[kingIndex][Long.numberOfTrailingZeros(slidingAttacks)];
+            slidingAttacks &= (slidingAttacks - 1);
+
+
+            //we don't want anything between the king and the sliding piece
+            long Hits = ray & (board.getBlackPieces() | board.getWhitePieces());
+            if(Long.bitCount(Hits) == 0){
+                attackingMap |= ray;
+            }
+        }
+
+        if(Long.bitCount(attackingMap) == 0){
+            checkMask = 0XFFFFFFFFFFFFFFFFL;
+            return true;
+        }
+        else if(Long.bitCount(attackingMap) == 1){
+            checkMask = attackingMap;
+            return true;
+        }
+        else{
+            checkMask = attackingMap;               // no use here
+            return false;
+        }
+
+    }
+
+
+    private boolean isSquareAttacked(BitBoard board, int square){
+        //TODO implement function
+        return (board.getBoard()[square] & checkMask) != 0;
+    }
+
+
+
+
+
+    //-----------------------------------------------------------------------------------------------------------------------
+    //                                               Move generation
+    //-----------------------------------------------------------------------------------------------------------------------
+
+
+
+
     public MoveList generateMoves(BitBoard board, boolean isWhite){
         this.isWhite = isWhite;
         MoveList moves = new MoveList();
+
+        calculatePinnedMask(board);
+        if(!calculateCheckMask(board)){
+            generateKingMoves(board, moves);
+            return moves;
+        }
+
         generatePawnMoves(board, moves);
         generateRookMoves(board, moves);
         generateKnightMoves(board, moves);
@@ -308,10 +590,6 @@ public class MoveGenerator {
     }
 
 
-
-    private void generateSlidingMoves(BitBoard board){
-
-    }
 
 
 }

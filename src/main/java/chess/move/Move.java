@@ -2,8 +2,9 @@ package chess.move;
 
 public class Move {
 
-    public static int encode(int from, int to, int piece, int capture, int isCapture, int isPromotion, int isCastling, int isEnPassant, int isCheckMate){
-        return  isCheckMate     & 0x1 << 24 |
+    public static int encode(int from, int to, int piece, int capture, int isCapture, int isPromotion, int isCastling, int isEnPassant, int isCheckMate, int isCheck){
+        return  isCheck         & 0x1 << 25 |
+                isCheckMate     & 0x1 << 24 |
                 isEnPassant     & 0x1 << 23 |
                 isCastling      & 0x1 << 22 |
                 isPromotion     & 0x1 << 21 |
@@ -48,6 +49,10 @@ public class Move {
 
     public static boolean isCheckMate(int move){
         return (move >> 24 & 0x1) == 1;
+    }
+
+    public static boolean isCheck(int move){
+        return (move >> 25 & 0x1) == 1;
     }
 
 //    public static boolean isStaleMate(int move){

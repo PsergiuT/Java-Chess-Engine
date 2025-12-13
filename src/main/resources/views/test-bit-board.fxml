@@ -111,6 +111,17 @@
                 <Label text="Knight Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
                 <ComboBox fx:id="knightPositionCombo" prefWidth="150" promptText="Select position"/>
             </VBox>
+
+            <VBox spacing="5">
+                <Label text="Ray 1:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="rayCombo1" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Ray 2:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="rayCombo2" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
         </VBox>
 
     </HBox>

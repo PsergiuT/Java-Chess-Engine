@@ -57,6 +57,10 @@ public class TestBitBoardController {
     private ComboBox<Integer> rookPositionCombo;
     @FXML
     private ComboBox<Integer> queenPositionCombo;
+    @FXML
+    private ComboBox<Integer> rayCombo1;
+    @FXML
+    private ComboBox<Integer> rayCombo2;
 
 
 
@@ -100,6 +104,8 @@ public class TestBitBoardController {
             bishopPositionCombo.getItems().add(i);
             rookPositionCombo.getItems().add(i);
             queenPositionCombo.getItems().add(i);
+            rayCombo1.getItems().add(i);
+            rayCombo2.getItems().add(i);
         }
 
         // Add listeners to update board when selection changes
@@ -153,6 +159,26 @@ public class TestBitBoardController {
                 drawPieces(position, moveGenerator.knightMoves[position - 1]);
             }
         });
+
+        rayCombo1.setOnAction(e -> {
+            Integer position1 = rayCombo1.getValue();
+            Integer position2 = rayCombo2.getValue();
+
+            if (position1 != null && position2 != null) {
+                drawPieces(position1, moveGenerator.rayMovement[position1 - 1][position2 - 1]);
+                System.out.println(moveGenerator.rayMovement[position1 - 1][position2 - 1]);
+            }
+        });
+
+        rayCombo2.setOnAction(e -> {
+            Integer position1 = rayCombo1.getValue();
+            Integer position2 = rayCombo2.getValue();
+
+            if (position1 != null && position2 != null) {
+                drawPieces(position2, moveGenerator.rayMovement[position1 - 1][position2 - 1]);
+                System.out.println(moveGenerator.rayMovement[position1 - 1][position2 - 1]);
+            }
+        });
     }
 
 
@@ -187,7 +213,7 @@ public class TestBitBoardController {
 
             if(i + 1 == position){
                 // This is the selected position - make it white
-                cell.setStyle(cell.getStyle() + "; -fx-background-color: white;");
+                //cell.setStyle(cell.getStyle() + "; -fx-background-color: white;");
             } else if(piece == 1) {
                 // This has a piece - make it red
                 cell.setStyle(cell.getStyle() + "; -fx-background-color: red;");
