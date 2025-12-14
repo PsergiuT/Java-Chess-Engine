@@ -2,6 +2,9 @@ package chess.controller;
 
 
 import chess.bitboard.BitBoard;
+import chess.bitboard.MoveGenerator;
+import chess.move.Move;
+import chess.move.MoveList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -32,6 +35,11 @@ public class PlayerBotController {
     private StackPane selectedSquare = null;
     private int selectedRow = -1;
     private int selectedCol = -1;
+    private MoveGenerator moveGenerator;
+    private MoveList validMovesFromSelectedSquare = new MoveList();
+
+    private int lastSelectedRow = -1;
+    private int lastSelectedCol = -1;
 
 
     private Image whitePawnImg;
@@ -143,35 +151,58 @@ public class PlayerBotController {
 
 
     private void handleSquareClick(int row, int col) {
+        //hollly
+        System.out.println("Selected row: " + row + " col: " + col);
+        int indexInBoard = (7 - row) * 8 + (7 - col);
+
+
         if (selectedSquare == null) {
             // Select a piece
             if (!squares[row][col].getChildren().isEmpty()) {
+                MoveList allValidMoves = moveGenerator.generateMoves(board, board.isWhiteTurn);
+                int[] Moves = allValidMoves.getMoves();
+
                 selectedSquare = squares[row][col];
                 selectedRow = row;
                 selectedCol = col;
 
                 // Highlight selected square
                 selectedSquare.setStyle(selectedSquare.getStyle() + "; -fx-border-color: #FFD700; -fx-border-width: 4;");
+
+                validMovesFromSelectedSquare.clear();
+                for(int i = 0; i < allValidMoves.getSize(); i++){
+                    if(Move.getFrom(Moves[i]) == indexInBoard){
+                        validMovesFromSelectedSquare.addMove(Moves[i]);
+                    }
+                }
+                showAvailablePositions();
             }
+
         } else {
-            // Move piece (you'll need to implement move validation)
-            //if (isValidMove(selectedRow, selectedCol, row, col)) {
 
-            movePiece(selectedRow, selectedCol, row, col);
+            int[] validMoves = validMovesFromSelectedSquare.getMoves();
+            for(int i = 0; i < validMovesFromSelectedSquare.getSize(); i++){
+                if(indexInBoard == Move.getTo(validMoves[i])){
+                    board.makeMove(validMoves[i]);
+                    movePiece(selectedRow, selectedCol, row, col);
 
-            // Switch turns
-            board.isWhiteTurn = !board.isWhiteTurn;
-            currentTurnLabel.setText(board.isWhiteTurn ? "White" : "Black");
-
-            // Bot move (if it's black's turn)
-//            if (!board.isWhiteTurn) {
-//                // TODO: Implement bot move logic
-//            }
+                    // Switch turns
+                    currentTurnLabel.setText(board.isWhiteTurn ? "White" : "Black");
 
 
-            // Deselect
-            resetSquareStyle(selectedRow, selectedCol);
+                    // Deselect
+                    setSquareStyleAfterMove(selectedRow, selectedCol, "#ffffff");
+                    if(lastSelectedRow != -1 && lastSelectedCol != -1) {
+                        resetSquareStyle(lastSelectedRow, lastSelectedCol);
+                    }
+                    break;
+                }
+            }
+
+            resetAvailablePositions();
             selectedSquare = null;
+            lastSelectedRow = selectedRow;
+            lastSelectedCol = selectedCol;
             selectedRow = -1;
             selectedCol = -1;
         }
@@ -179,8 +210,6 @@ public class PlayerBotController {
 
 
     private void movePiece(int fromRow, int fromCol, int toRow, int toCol) {
-        // TODO: Update bitboards in your BitBoard class
-        // For now, just visually move the piece
 
         if (!squares[fromRow][fromCol].getChildren().isEmpty()) {
             ImageView piece = (ImageView) squares[fromRow][fromCol].getChildren().get(0);
@@ -195,6 +224,31 @@ public class PlayerBotController {
             int moves = Integer.parseInt(moveCountLabel.getText());
             moveCountLabel.setText(String.valueOf(moves + 1));
         }
+    }
+
+    private void showAvailablePositions(){
+        int[] validMoves = validMovesFromSelectedSquare.getMoves();
+        for(int i = 0; i < validMovesFromSelectedSquare.getSize(); i++){
+            int indexTo = Move.getTo(validMoves[i]);
+            int row = 7 - (indexTo / 8);
+            int col = 7 - (indexTo % 8);
+            setSquareStyleAfterMove(row, col, "#FFD700");
+        }
+    }
+
+
+    private void resetAvailablePositions(){
+        int[] validMoves = validMovesFromSelectedSquare.getMoves();
+        for(int i = 0; i < validMovesFromSelectedSquare.getSize(); i++){
+            int indexTo = Move.getTo(validMoves[i]);
+            int row = 7 - (indexTo / 8);
+            int col = 7 - (indexTo % 8);
+            resetSquareStyle(row, col);
+        }
+    }
+
+    private void setSquareStyleAfterMove(int row, int col, String color){
+        squares[row][col].setStyle("-fx-background-color: " + color + "; -fx-border-color: #000000; -fx-border-width: 1;");
     }
 
 
@@ -213,6 +267,7 @@ public class PlayerBotController {
     @FXML
     private void initialize(){
         board = new BitBoard(10, 200);
+        moveGenerator = new MoveGenerator();
         loadPieceImages();
         setupBoard();
         updateBoardDisplay();

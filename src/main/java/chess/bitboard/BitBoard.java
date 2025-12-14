@@ -11,6 +11,7 @@ public class BitBoard implements Board {
     public boolean isCheckMate;
     private Double timeLeftForWhite;
     private Double timeLeftForBlack;
+    private int enPassantSquare = -1;
 
     public Double getTimeForWhite() {
         return timeLeftForWhite;
@@ -93,6 +94,10 @@ public class BitBoard implements Board {
         return board;
     }
 
+    public int getEnPassantSquare(){
+        return enPassantSquare;
+    }
+
 
     public BitBoard(double time, int numberOfMoves) {
         isWhiteTurn = true;
@@ -104,8 +109,8 @@ public class BitBoard implements Board {
         board[1] |= 0b01000010;        //Knight
         board[2] |= 0b10000001;        //Rook
         board[3] |= 0b00100100;        //Bishop
-        board[4] |= 0b00010000;        //Queen
-        board[5] |= 0b00001000;        //King
+        board[4] |= 0b00001000;        //Queen
+        board[5] |= 0b00010000;        //King
         board[6] = board[0] | board[1] | board[2] | board[3] | board[4] | board[5];
 
 
@@ -132,8 +137,8 @@ public class BitBoard implements Board {
 
 
     private void captureEnPassant(int move) {
-        if (isWhiteTurn) board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move) - 8));
-        else board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move) + 8));
+        if (isWhiteTurn) board[8] &= ~(1L << (Move.getTo(move) - 8));
+        else board[0] &= ~(1L << (Move.getTo(move) + 8));
 
     }
 
@@ -142,6 +147,13 @@ public class BitBoard implements Board {
     }
 
     private void movePiece(int move) {
+        if(Move.getPiece(move) % 8 == 0 && Math.abs(Move.getFrom(move) - Move.getTo(move)) == 16){
+            //pawn moved to double square
+            this.enPassantSquare = (Move.getFrom(move) + Move.getTo(move)) / 2;
+        }
+        else{
+            this.enPassantSquare = -1;
+        }
         board[Move.getPiece(move)] &= ~(1L << Move.getFrom(move));
         board[Move.getPiece(move)] |= 1L << Move.getTo(move);
     }
@@ -169,13 +181,13 @@ public class BitBoard implements Board {
         }
 
         if (Move.isPromotion(move)) {
-            //replace the pawn with the new queen (+4)
-            board[Move.getPiece(move) + 4] |= 1L << Move.getTo(move);
+            //replace the pawn with the new promotion piece
+            board[Move.getPromotion(move)] |= 1L << Move.getTo(move);
             board[Move.getPiece(move)] &= ~(1L << Move.getTo(move));
             return;
         }
 
-        if (Move.isCheckMate(move)) {
+        if (move == 0) {
             isCheckMate = true;
         }
     }

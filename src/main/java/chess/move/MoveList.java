@@ -15,4 +15,8 @@ public class MoveList {
     public int[] getMoves(){
         return moves;
     }
+
+    public int getSize(){
+        return size;
+    }
 }

@@ -112,14 +112,14 @@ public class TestBitBoardController {
         whitePawnPositionCombo.setOnAction(e -> {
             Integer position = whitePawnPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.whitePawnMoves[position - 1]);
+                drawPieces(position, moveGenerator.pawnMoves[0][position - 1]);
             }
         });
 
         blackPawnPositionCombo.setOnAction(e -> {
             Integer position = blackPawnPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.blackPawnMoves[position - 1]);
+                drawPieces(position, moveGenerator.pawnMoves[2][position - 1]);
             }
         });
 
