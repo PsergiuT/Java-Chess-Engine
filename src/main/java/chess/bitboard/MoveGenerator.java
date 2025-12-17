@@ -672,8 +672,10 @@ public class MoveGenerator {
 
         while(diagonalSlidingAttacks != 0){
             int enemy = Long.numberOfTrailingZeros(diagonalSlidingAttacks);
-            if((rayMovement[square][enemy] & allPieces) == 0)          //if == 0
+            if((rayMovement[square][enemy] & allPieces) == 0){
+                System.out.println("ok");
                 return true;
+            }
 
             diagonalSlidingAttacks &= (diagonalSlidingAttacks - 1);
         }
@@ -912,12 +914,7 @@ public class MoveGenerator {
 
 
     private void generateRookMoves(BitBoard board, MoveList moves){
-        long FileA = 0x8080808080808080L;
-        long FileH = 0x0101010101010101L;
-        long Rank1 = 0x00000000000000FFL;
-        long Rank8 = 0xFF00000000000000L;
-
-
+        //TODO -> refactor + castle
         long enemyPieces, allyPieces;
         long rookBoard;
         if(isWhite){
@@ -936,6 +933,9 @@ public class MoveGenerator {
             rookBoard &= (rookBoard - 1);
 
             long rMap = rookMoves[rookIndex];
+            long conflictingPieces = rMap & (allyPieces | enemyPieces);
+            long conflictingEnemyPieces = rMap & enemyPieces;
+
 
             //check for pin
             if((rMap & pinnedMaskBoard) != 0){
@@ -944,56 +944,23 @@ public class MoveGenerator {
             //check for check
             rMap &= checkMask;
 
-            long conflictingPieces = rMap & (allyPieces | enemyPieces);
-            long conflictingEnemyPieces = rMap & enemyPieces;
-            long conflictingAllyPieces = rMap & allyPieces;
 
-            long rMapNew = 0;
-            printWithMessage("ROOK MOVE MAP: ", rMap);
-
-
-
-            int index = 1;
             //south
-            while((rMap & ))
-
-
-
-
-            long southRay = rayMovement[rookIndex][(rookIndex % 8)] | (1L << (rookIndex % 8));
+            long southRay = precomputedDirections[3][rookIndex];
             southRay &= rMap;
-            //printWithMessage("South Ray: ", southRay);
-
-            long eastRay = rayMovement[rookIndex][rookIndex - (rookIndex % 8)] | (1L << (rookIndex - (rookIndex % 8)));
-            eastRay &= rMap;
-            //printWithMessage("East Ray: ", eastRay);
-
-            long westRay = rayMovement[rookIndex][rookIndex + (7 - (rookIndex % 8))] | (1L << (rookIndex + (7 - (rookIndex % 8))));
-            westRay &= rMap;
-            //printWithMessage("West Ray: ", westRay);
-
-            long northRay = rayMovement[rookIndex][56 + (rookIndex % 8)] | (1L << (56 + rookIndex % 8));
-            northRay &= rMap;
-            //printWithMessage("North Ray: ", northRay);
-
-            long rookPieceBoardCopy = rookPieceBoard;
 
             if(southRay != 0){
-                //check for enemy or ally pieces
-                int emptyPieceIndex = 63 - Long.numberOfLeadingZeros(southRay & conflictingPieces); //only for south
-                long emptyMap = (1L << emptyPieceIndex);
-                while(((rookPieceBoard >>> 8) & emptyMap) == 0 && rookPieceBoard & ){
-                    //TODO fix adding logic
-                    rMapNew |= (rookPieceBoard >>> 8);
-                    rookPieceBoard = rookPieceBoard >>> 8;
-                }
+                //there are moves left in the south direction
+                if((southRay & conflictingPieces) != 0){
+                    int southIndex = 63 - Long.numberOfLeadingZeros(southRay & conflictingPieces);
+                    southRay = southRay ^ (precomputedDirections[3][southIndex] | (1L << southIndex));
 
-                if((rookPieceBoard & enemyPieces) != 0){
-                    //generate capture move
-                    int capture = getPieceAt(board, rookPieceBoard);
-                    moves.addMove(Move.encode(
+                    if(((1L << southIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << southIndex));
+                        moves.addMove(Move.encode(
                             rookIndex,
-                            Long.numberOfTrailingZeros(rookPieceBoard),
+                            southIndex,
                             isWhite ? 2 : 10,
                             capture,
                             1,
@@ -1001,103 +968,111 @@ public class MoveGenerator {
                             0,
                             0,
                             0
-                    ));
+                        ));
+                    }
+
                 }
             }
 
 
-            rookPieceBoard = rookPieceBoardCopy;
+
+            //east
+            long eastRay = precomputedDirections[2][rookIndex];
+            eastRay &= rMap;
             if(eastRay != 0){
-                //check for enemy or ally pieces
-                int emptyPieceIndex = 63 - Long.numberOfLeadingZeros(southRay & conflictingPieces); //only for east
-                long emptyMap = (1L << emptyPieceIndex);
-                while(((rookPieceBoard >>> 1) & emptyMap) == 0){
-                    //TODO fix adding logic
-                    rMapNew |= (rookPieceBoard >>> 1);
-                    rookPieceBoard = rookPieceBoard >>> 1;
-                }
-
-                if((rookPieceBoard & enemyPieces) != 0){
-                    //generate capture move
-                    int capture = getPieceAt(board, rookPieceBoard);
-                    moves.addMove(Move.encode(
-                            rookIndex,
-                            Long.numberOfTrailingZeros(rookPieceBoard),
-                            isWhite ? 2 : 10,
-                            capture,
-                            1,
-                            0,
-                            0,
-                            0,
-                            0
-                    ));
+                if((eastRay & conflictingPieces) != 0){
+                    int eastIndex = 63 - Long.numberOfLeadingZeros(eastRay & conflictingPieces);
+                    if(((1L << eastIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << eastIndex));
+                        moves.addMove(Move.encode(
+                                rookIndex,
+                                eastIndex,
+                                isWhite ? 2 : 10,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                    eastRay = eastRay ^ (precomputedDirections[2][eastIndex] | (1L << eastIndex));
                 }
             }
 
 
-            rookPieceBoard = rookPieceBoardCopy;
+
+            //west
+            long westRay = precomputedDirections[0][rookIndex];
+            westRay &= rMap;
             if(westRay != 0){
-                //check for enemy or ally pieces
-                int emptyPieceIndex =Long.numberOfTrailingZeros(southRay & conflictingPieces); //only for west
-                long emptyMap = (1L << emptyPieceIndex);
-                while(((rookPieceBoard << 1) & emptyMap) == 0){
-                    //TODO fix adding logic
-                    rMapNew |= (rookPieceBoard << 1);
-                    rookPieceBoard = rookPieceBoard << 1;
-                }
-
-                if((rookPieceBoard & enemyPieces) != 0){
-                    //generate capture move
-                    int capture = getPieceAt(board, rookPieceBoard);
-                    moves.addMove(Move.encode(
-                            rookIndex,
-                            Long.numberOfTrailingZeros(rookPieceBoard),
-                            isWhite ? 2 : 10,
-                            capture,
-                            1,
-                            0,
-                            0,
-                            0,
-                            0
-                    ));
+                if((westRay & conflictingPieces) != 0){
+                    int westIndex = Long.numberOfTrailingZeros(westRay & conflictingPieces);
+                    if(((1L << westIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << westIndex));
+                        moves.addMove(Move.encode(
+                                rookIndex,
+                                westIndex,
+                                isWhite ? 2 : 10,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                    westRay = westRay ^ (precomputedDirections[0][westIndex] | (1L << westIndex));
                 }
             }
 
 
-
-            rookPieceBoard = rookPieceBoardCopy;
+            //north
+            long northRay = precomputedDirections[1][rookIndex];
+            northRay &= rMap;
             if(northRay != 0){
-                //check for enemy or ally pieces
-                int emptyPieceIndex = Long.numberOfTrailingZeros(southRay & conflictingPieces); //only for south
-                long emptyMap = (1L << emptyPieceIndex);
-                while(((rookPieceBoard << 8) & emptyPieceIndex) == 0){
-                    //TODO fix adding logic
-                    rMapNew |= (rookPieceBoard << 8);
-                    rookPieceBoard = rookPieceBoard << 8;
-                }
-
-                if((rookPieceBoard & enemyPieces) != 0){
-                    //generate capture move
-                    int capture = getPieceAt(board, rookPieceBoard);
-                    moves.addMove(Move.encode(
-                            rookIndex,
-                            Long.numberOfTrailingZeros(rookPieceBoard),
-                            isWhite ? 2 : 10,
-                            capture,
-                            1,
-                            0,
-                            0,
-                            0,
-                            0
-                    ));
+                if((northRay & conflictingPieces) != 0){
+                    int northIndex = Long.numberOfTrailingZeros(northRay & conflictingPieces);
+                    if(((1L << northIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << northIndex));
+                        moves.addMove(Move.encode(
+                                rookIndex,
+                                northIndex,
+                                isWhite ? 2 : 10,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                    northRay = northRay ^ ( precomputedDirections[1][northIndex] | (1L << northIndex));
                 }
             }
 
-            printWithMessage("South Ray: ", southRay);
-            printWithMessage("East Ray: ", eastRay);
-            printWithMessage("West Ray: ", westRay);
-            printWithMessage("North Ray: ", northRay);
 
+            rMap &= (southRay | eastRay | westRay | northRay);
+
+
+            while(rMap != 0){
+                int to = Long.numberOfTrailingZeros(rMap);
+                rMap &= (rMap - 1);
+                moves.addMove(Move.encode(
+                        rookIndex,
+                        to,
+                        isWhite ? 2 : 10,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                ));
+            }
         }
     }
 
@@ -1167,14 +1142,510 @@ public class MoveGenerator {
 
 
     private void generateBishopMoves(BitBoard board, MoveList moves){
+        long enemyPieces, allyPieces;
+        long bishopBoard;
+        if(isWhite){
+            bishopBoard = board.getWhiteBishopBoard();
+            enemyPieces = board.getBlackPieces();
+            allyPieces = board.getWhitePieces();
+        }else{
+            bishopBoard = board.getBlackBishopBoard();
+            enemyPieces = board.getWhitePieces();
+            allyPieces = board.getBlackPieces();
+        }
 
+        while(bishopBoard != 0){
+            int bishopIndex = Long.numberOfTrailingZeros(bishopBoard);
+            long bishopPieceBoard = (1L << bishopIndex);
+            bishopBoard &= (bishopBoard - 1);
+
+            long bMap = bishopMoves[bishopIndex];
+            long conflictingPieces = bMap & (allyPieces | enemyPieces);
+            long conflictingEnemyPieces = bMap & enemyPieces;
+
+            //check for pin
+            if((bMap & pinnedMaskBoard) != 0){
+                bMap &= pinnedPieces[bishopIndex];
+            }
+            //check for check
+            bMap &= checkMask;
+
+
+            //south west
+            long SWRay = precomputedDirections[7][bishopIndex];
+            SWRay &= bMap;
+
+            if(SWRay != 0){
+                //there are moves left in the south direction
+                if((SWRay & conflictingPieces) != 0){
+                    int SWIndex = 63 - Long.numberOfLeadingZeros(SWRay & conflictingPieces);
+                    SWRay = SWRay ^ (precomputedDirections[7][SWIndex] | (1L << SWIndex));
+
+                    if(((1L << SWIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << SWIndex));
+                        moves.addMove(Move.encode(
+                                bishopIndex,
+                                SWIndex,
+                                isWhite ? 3 : 11,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+
+                }
+            }
+
+
+
+            //south east
+            long SERay = precomputedDirections[6][bishopIndex];
+            SERay &= bMap;
+            if(SERay != 0){
+                if((SERay & conflictingPieces) != 0){
+                    int SEIndex = 63 - Long.numberOfLeadingZeros(SERay & conflictingPieces);
+                    SERay = SERay ^ (precomputedDirections[6][SEIndex] | (1L << SEIndex));
+
+                    if(((1L << SEIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << SEIndex));
+                        moves.addMove(Move.encode(
+                                bishopIndex,
+                                SEIndex,
+                                isWhite ? 3 : 11,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                }
+            }
+
+
+
+            //north west
+            long NWRay = precomputedDirections[4][bishopIndex];
+            NWRay &= bMap;
+            if(NWRay != 0){
+                if((NWRay & conflictingPieces) != 0){
+                    int NWIndex = Long.numberOfTrailingZeros(NWRay & conflictingPieces);
+                    NWRay = NWRay ^ (precomputedDirections[4][NWIndex] | (1L << NWIndex));
+
+                    if(((1L << NWIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << NWIndex));
+                        moves.addMove(Move.encode(
+                                bishopIndex,
+                                NWIndex,
+                                isWhite ? 3 : 11,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                }
+            }
+
+
+            //north east
+            long NERay = precomputedDirections[5][bishopIndex];
+            NERay &= bMap;
+            if(NERay != 0){
+                if((NERay & conflictingPieces) != 0){
+                    int NEIndex = Long.numberOfTrailingZeros(NERay & conflictingPieces);
+                    NERay = NERay ^ ( precomputedDirections[5][NEIndex] | (1L << NEIndex));
+
+                    if(((1L << NEIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << NEIndex));
+                        moves.addMove(Move.encode(
+                                bishopIndex,
+                                NEIndex,
+                                isWhite ? 3 : 11,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                }
+            }
+
+            bMap &= (SWRay | SERay | NWRay | NERay);
+
+            while(bMap != 0){
+                int to = Long.numberOfTrailingZeros(bMap);
+                bMap &= (bMap - 1);
+
+                moves.addMove(Move.encode(
+                        bishopIndex,
+                        to,
+                        isWhite ? 3 : 11,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                ));
+            }
+        }
     }
 
-    private void generateQueenMoves(BitBoard board, MoveList moves){
 
+
+
+
+
+    private void generateQueenMoves(BitBoard board, MoveList moves){
+        long enemyPieces, allyPieces;
+        long queenBoard;
+        if(isWhite){
+            queenBoard = board.getWhiteQueenBoard();
+            enemyPieces = board.getBlackPieces();
+            allyPieces = board.getWhitePieces();
+        }else{
+            queenBoard = board.getBlackQueenBoard();
+            enemyPieces = board.getWhitePieces();
+            allyPieces = board.getBlackPieces();
+        }
+
+
+        while(queenBoard != 0){
+            int queenIndex = Long.numberOfTrailingZeros(queenBoard);
+            long queenPieceBoard = (1L << queenIndex);
+            queenBoard &= (queenBoard - 1);
+
+            long qMap = queenMoves[queenIndex];
+            long conflictingPieces = qMap & (allyPieces | enemyPieces);
+            long conflictingEnemyPieces = qMap & enemyPieces;
+
+            //south
+            long southRay = precomputedDirections[3][queenIndex];
+            southRay &= qMap;
+
+            if(southRay != 0){
+                //there are moves left in the south direction
+                if((southRay & conflictingPieces) != 0){
+                    int southIndex = 63 - Long.numberOfLeadingZeros(southRay & conflictingPieces);
+                    southRay = southRay ^ (precomputedDirections[3][southIndex] | (1L << southIndex));
+
+                    if(((1L << southIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << southIndex));
+                        moves.addMove(Move.encode(
+                                queenIndex,
+                                southIndex,
+                                isWhite ? 4 : 12,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+
+                }
+            }
+
+
+
+            //east
+            long eastRay = precomputedDirections[2][queenIndex];
+            eastRay &= qMap;
+            if(eastRay != 0){
+                if((eastRay & conflictingPieces) != 0){
+                    int eastIndex = 63 - Long.numberOfLeadingZeros(eastRay & conflictingPieces);
+                    if(((1L << eastIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << eastIndex));
+                        moves.addMove(Move.encode(
+                                queenIndex,
+                                eastIndex,
+                                isWhite ? 4 : 12,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                    eastRay = eastRay ^ (precomputedDirections[2][eastIndex] | (1L << eastIndex));
+                }
+            }
+
+
+
+            //west
+            long westRay = precomputedDirections[0][queenIndex];
+            westRay &= qMap;
+            if(westRay != 0){
+                if((westRay & conflictingPieces) != 0){
+                    int westIndex = Long.numberOfTrailingZeros(westRay & conflictingPieces);
+                    if(((1L << westIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << westIndex));
+                        moves.addMove(Move.encode(
+                                queenIndex,
+                                westIndex,
+                                isWhite ? 4 : 12,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                    westRay = westRay ^ (precomputedDirections[0][westIndex] | (1L << westIndex));
+                }
+            }
+
+
+            //north
+            long northRay = precomputedDirections[1][queenIndex];
+            northRay &= qMap;
+            if(northRay != 0){
+                if((northRay & conflictingPieces) != 0){
+                    int northIndex = Long.numberOfTrailingZeros(northRay & conflictingPieces);
+                    if(((1L << northIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << northIndex));
+                        moves.addMove(Move.encode(
+                                queenIndex,
+                                northIndex,
+                                isWhite ? 4 : 12,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                    northRay = northRay ^ ( precomputedDirections[1][northIndex] | (1L << northIndex));
+                }
+            }
+
+
+            //south west
+            long SWRay = precomputedDirections[7][queenIndex];
+            SWRay &= qMap;
+
+            if(SWRay != 0){
+                //there are moves left in the south direction
+                if((SWRay & conflictingPieces) != 0){
+                    int SWIndex = 63 - Long.numberOfLeadingZeros(SWRay & conflictingPieces);
+                    SWRay = SWRay ^ (precomputedDirections[7][SWIndex] | (1L << SWIndex));
+
+                    if(((1L << SWIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << SWIndex));
+                        moves.addMove(Move.encode(
+                                queenIndex,
+                                SWIndex,
+                                isWhite ? 4 : 12,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+
+                }
+            }
+
+
+
+            //south east
+            long SERay = precomputedDirections[6][queenIndex];
+            SERay &= qMap;
+            if(SERay != 0){
+                if((SERay & conflictingPieces) != 0){
+                    int SEIndex = 63 - Long.numberOfLeadingZeros(SERay & conflictingPieces);
+                    SERay = SERay ^ (precomputedDirections[6][SEIndex] | (1L << SEIndex));
+
+                    if(((1L << SEIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << SEIndex));
+                        moves.addMove(Move.encode(
+                                queenIndex,
+                                SEIndex,
+                                isWhite ? 4 : 12,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                }
+            }
+
+
+
+            //north west
+            long NWRay = precomputedDirections[4][queenIndex];
+            NWRay &= qMap;
+            if(NWRay != 0){
+                if((NWRay & conflictingPieces) != 0){
+                    int NWIndex = Long.numberOfTrailingZeros(NWRay & conflictingPieces);
+                    NWRay = NWRay ^ (precomputedDirections[4][NWIndex] | (1L << NWIndex));
+
+                    if(((1L << NWIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << NWIndex));
+                        moves.addMove(Move.encode(
+                                queenIndex,
+                                NWIndex,
+                                isWhite ? 4 : 12,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                }
+            }
+
+
+            //north east
+            long NERay = precomputedDirections[5][queenIndex];
+            NERay &= qMap;
+            if(NERay != 0){
+                if((NERay & conflictingPieces) != 0){
+                    int NEIndex = Long.numberOfTrailingZeros(NERay & conflictingPieces);
+                    NERay = NERay ^ ( precomputedDirections[5][NEIndex] | (1L << NEIndex));
+
+                    if(((1L << NEIndex) & conflictingEnemyPieces) != 0){
+                        //generate capture
+                        int capture = getPieceAt(board, (1L << NEIndex));
+                        moves.addMove(Move.encode(
+                                queenIndex,
+                                NEIndex,
+                                isWhite ? 4 : 12,
+                                capture,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                        ));
+                    }
+                }
+            }
+
+            qMap &= (southRay | eastRay | northRay | westRay | SWRay | SERay | NWRay | NERay);
+
+            //check for pin
+            if((qMap & pinnedMaskBoard) != 0){
+                qMap &= pinnedPieces[queenIndex];
+            }
+            //check for check
+            qMap &= checkMask;
+
+
+            while(qMap != 0){
+                int to = Long.numberOfTrailingZeros(qMap);
+                qMap &= (qMap - 1);
+
+                moves.addMove(Move.encode(
+                        queenIndex,
+                        to,
+                        isWhite ? 4 : 12,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                ));
+            }
+        }
     }
 
     private void generateKingMoves(BitBoard board, MoveList moves){
+        //TODO problem with the check mask in here
+
+        System.out.println("king moves");
+        long enemyPieces, allyPieces;
+        long kingBoard;
+        if(isWhite){
+            kingBoard = board.getWhiteKingBoard();
+            enemyPieces = board.getBlackPieces();
+            allyPieces = board.getWhitePieces();
+        }else{
+            kingBoard = board.getBlackKingBoard();
+            enemyPieces = board.getWhitePieces();
+            allyPieces = board.getBlackPieces();
+        }
+
+
+        int kingIndex = Long.numberOfTrailingZeros(kingBoard);
+
+        long kMap = kingMoves[kingIndex];
+
+        //king can't be pinned
+        //check for check
+        //kMap &= checkMask;
+        kMap &= ~(allyPieces);
+
+        while(kMap != 0){
+            int to = Long.numberOfTrailingZeros(kMap);
+            kMap &= (kMap - 1);
+
+            if(isSquareAttacked(board, to)){
+                continue;
+            }
+
+            if(((1L << to) & enemyPieces) != 0){
+                //capture
+                int capture = getPieceAt(board, (1L << to));
+                moves.addMove(Move.encode(
+                        kingIndex,
+                        to,
+                        isWhite ? 5 : 13,
+                        capture,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0
+                ));
+                continue;
+            }
+
+            moves.addMove(Move.encode(
+                    kingIndex,
+                    to,
+                    isWhite ? 5 : 13,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+            ));
+        }
 
     }
 

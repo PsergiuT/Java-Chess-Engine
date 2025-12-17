@@ -5,7 +5,9 @@ import chess.bitboard.BitBoard;
 import chess.bitboard.MoveGenerator;
 import chess.move.Move;
 import chess.move.MoveList;
+import chess.search.Bot;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -40,6 +42,8 @@ public class PlayerBotController {
 
     private int lastSelectedRow = -1;
     private int lastSelectedCol = -1;
+    private int botLastSelectedRow = -1;
+    private int botLastSelectedCol = -1;
 
 
     private Image whitePawnImg;
@@ -175,11 +179,20 @@ public class PlayerBotController {
                     }
                 }
                 showAvailablePositions();
+                if(lastSelectedRow != -1 && lastSelectedCol != -1) {
+                    resetSquareStyle(lastSelectedRow, lastSelectedCol);
+                }
             }
 
         } else {
 
             int[] validMoves = validMovesFromSelectedSquare.getMoves();
+
+            if(moveGenerator.generateMoves(board, board.isWhiteTurn).getSize() == 0){
+                //checkmate
+                MessageAlert.showMessage(null, Alert.AlertType.INFORMATION, "Checkmate!", "Checkmate!");
+            }
+
             for(int i = 0; i < validMovesFromSelectedSquare.getSize(); i++){
                 if(indexInBoard == Move.getTo(validMoves[i])){
                     //printBoard();
@@ -195,6 +208,36 @@ public class PlayerBotController {
                     if(lastSelectedRow != -1 && lastSelectedCol != -1) {
                         resetSquareStyle(lastSelectedRow, lastSelectedCol);
                     }
+
+                    //--------------make bot move---------------
+                    int bestMove = Bot.bestMove(board, moveGenerator, board.isWhiteTurn);
+
+                    if(bestMove == -1){
+                        //checkmate
+                        MessageAlert.showMessage(null, Alert.AlertType.INFORMATION, "Checkmate!", "Checkmate!");
+                    }
+
+                    board.makeMove(bestMove);
+                    int fromRow = 7 - (Move.getFrom(bestMove) / 8);
+                    int fromCol = 7 - (Move.getFrom(bestMove) % 8);
+                    int toRow = 7 - (Move.getTo(bestMove) / 8);
+                    int toCol = 7 - (Move.getTo(bestMove) % 8);
+                    movePiece(fromRow, fromCol, toRow, toCol);
+
+                    // Switch turns
+                    currentTurnLabel.setText(board.isWhiteTurn ? "White" : "Black");
+
+
+                    // Deselect
+                    setSquareStyleAfterMove(fromRow, fromCol, "#5f5f5f");
+                    if(botLastSelectedCol != -1 && botLastSelectedRow != -1) {
+                        resetSquareStyle(botLastSelectedRow, botLastSelectedCol);
+                    }
+
+                    botLastSelectedRow = fromRow;
+                    botLastSelectedCol = fromCol;
+
+
                     break;
                 }
             }
