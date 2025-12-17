@@ -93,13 +93,23 @@
             </VBox>
 
             <VBox spacing="5">
-                <Label text="White Pawn Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
-                <ComboBox fx:id="whitePawnPositionCombo" prefWidth="150" promptText="Select position"/>
+                <Label text="White Pawn AHEAD Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="whitePawnAheadPositionCombo" prefWidth="150" promptText="Select position"/>
             </VBox>
 
             <VBox spacing="5">
-                <Label text="Black Pawn Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
-                <ComboBox fx:id="blackPawnPositionCombo" prefWidth="150" promptText="Select position"/>
+                <Label text="Black Pawn AHEAD Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="blackPawnAheadPositionCombo" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="White Pawn CAPTURE Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="whitePawnCapturePositionCombo" prefWidth="150" promptText="Select position"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Black Pawn CAPTURE Position:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="blackPawnCapturePositionCombo" prefWidth="150" promptText="Select position"/>
             </VBox>
 
             <VBox spacing="5">

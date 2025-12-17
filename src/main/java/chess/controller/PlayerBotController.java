@@ -137,7 +137,7 @@ public class PlayerBotController {
         for (int i = 0; i < 64; i++) {
             if (((bitboard >> i) & 1) == 1) {
                 int row = 7 - (i / 8);
-                int col = i % 8;
+                int col = 7 - (i % 8);
 
                 ImageView pieceView = new ImageView(pieceImage);
                 pieceView.setFitWidth(70);
@@ -151,8 +151,7 @@ public class PlayerBotController {
 
 
     private void handleSquareClick(int row, int col) {
-        //hollly
-        System.out.println("Selected row: " + row + " col: " + col);
+        //System.out.println("Selected row: " + row + " col: " + col);
         int indexInBoard = (7 - row) * 8 + (7 - col);
 
 
@@ -183,6 +182,7 @@ public class PlayerBotController {
             int[] validMoves = validMovesFromSelectedSquare.getMoves();
             for(int i = 0; i < validMovesFromSelectedSquare.getSize(); i++){
                 if(indexInBoard == Move.getTo(validMoves[i])){
+                    //printBoard();
                     board.makeMove(validMoves[i]);
                     movePiece(selectedRow, selectedCol, row, col);
 
@@ -206,6 +206,25 @@ public class PlayerBotController {
             selectedRow = -1;
             selectedCol = -1;
         }
+    }
+
+
+    private void printBoard(){
+        System.out.println("--------------------------------------------");
+
+        long enemyBoard = board.isWhiteTurn ? board.getBlackPieces() : board.getWhitePieces();
+
+        for(int i = 0; i < 8; i++){
+            System.out.print("R" + (i + 1) + ": ");
+            for(int j = 0; j < 8; j++){
+                long piece = enemyBoard & 0x8000000000000000L;
+                System.out.print( piece != 0 ? "X " : "_ ");
+                enemyBoard = enemyBoard << 1;
+            }
+            System.out.println("");
+        }
+
+        System.out.println("--------------------------------------------");
     }
 
 

@@ -15,7 +15,7 @@ public class MoveGenerator {
     public final long[] pinnedPieces = new long[64];
     public final long[][] rayMovement = new long[64][64];
     public long pinnedMaskBoard;
-    public long checkMask;
+    public long checkMask = 0xFFFFFFFFFFFFFFFFL;
     private final long[][] precomputedDirections = new long[8][64]; //0, 1, 2, 3 are for Orthogonal directions, 4, 5, 6, 7 are for Diagonal directions
 
     private boolean isWhite;
@@ -73,6 +73,19 @@ public class MoveGenerator {
 
         //__________WHITE____PAWNS__________//
 
+        //add captures for first row for king check mask
+        for(int i = 0; i < 8; i++){
+            long pawn = 1L << i;
+
+            //pawn is not on file A
+            if((pawn & FileA) == 0) pawnMoves[1][i] |= (pawn << 9);
+
+            //pawn in not on fileH
+            if((pawn & FileH) == 0) pawnMoves[1][i] |= (pawn << 7);
+
+        }
+
+
         for(int i = 8; i < 16; i++){
             long pawn = 1L << i;
 
@@ -87,7 +100,7 @@ public class MoveGenerator {
 
         }
 
-        for(int i = 16; i < 55; i++){
+        for(int i = 16; i < 56; i++){
             long pawn = 1L << i;
 
             //move one up
@@ -105,7 +118,19 @@ public class MoveGenerator {
 
         //__________BLACK____PAWNS__________//
 
-        for(int i = 48; i < 55; i++){
+
+        for(int i = 56; i < 64; i++){
+            long pawn = 1L << i;
+
+            //pawn is not on file A
+            if((pawn & FileA) == 0) pawnMoves[3][i] |= (pawn >>> 7);
+
+            //pawn in not on fileH
+            if((pawn & FileH) == 0) pawnMoves[3][i] |= (pawn >>> 9);
+
+        }
+
+        for(int i = 48; i < 56; i++){
             long pawn = 1L << i;
 
             //add possibility to move 1 or 2 down
@@ -119,7 +144,7 @@ public class MoveGenerator {
 
         }
 
-        for(int i = 8; i < 47; i++){
+        for(int i = 8; i < 48; i++){
             long pawn = 1L << i;
 
             //move one up
@@ -517,6 +542,7 @@ public class MoveGenerator {
         if(isWhite){
             kingIndex = Long.numberOfTrailingZeros(board.getWhiteKingBoard());
             pawnBoard = pawnMoves[1][kingIndex];
+            System.out.println(pawnBoard);
             enemyPawn = board.getBlackPawnBoard();
             enemyKnight = board.getBlackKnightBoard();
             enemyRook = board.getBlackRookBoard();
@@ -664,6 +690,30 @@ public class MoveGenerator {
     //-----------------------------------------------------------------------------------------------------------------------
 
 
+    private void printMask(long mask){
+        System.out.println("--------------------------------------------");
+
+        for(int i = 0; i < 8; i++){
+            System.out.print("R" + (i + 1) + ": ");
+            for(int j = 0; j < 8; j++){
+                long piece = mask & 0x8000000000000000L;
+                System.out.print( piece != 0 ? "X " : "_ ");
+                mask = mask << 1;
+            }
+            System.out.println("");
+        }
+
+        System.out.println("--------------------------------------------");
+    }
+
+    private void printWithMessage(String message, long mask){
+        System.out.println("-----------------------------");
+        System.out.println(message);
+        System.out.println("-----------------------------");
+        printMask(mask);
+    }
+
+
 
 
     public MoveList generateMoves(BitBoard board, boolean isWhite){
@@ -671,6 +721,10 @@ public class MoveGenerator {
         MoveList moves = new MoveList();
 
         calculatePinnedMask(board);
+        System.out.println("CHECK MASK: ");
+        printMask(checkMask);
+//        System.out.println("PINNED MASK: ");
+//        printMask(pinnedMaskBoard);
         if(!calculateCheckMask(board)){
             generateKingMoves(board, moves);
             return moves;
@@ -684,6 +738,9 @@ public class MoveGenerator {
         generateKingMoves(board, moves);
         return moves;
     }
+
+
+
 
     private void generatePawnMoves(BitBoard board, MoveList moves){
         long pawnBoard;
@@ -708,6 +765,7 @@ public class MoveGenerator {
         while(pawnBoard != 0){
             int pawnIndex = Long.numberOfTrailingZeros(pawnBoard);
             pawnBoard &= (pawnBoard - 1);
+            long pawnMap = (1L << pawnIndex);
 
             long pMapMoveAhead;
             long pMapCapture;
@@ -721,7 +779,7 @@ public class MoveGenerator {
                 pMapCapture = pawnMoves[3][pawnIndex];
             }
 
-            if(((1L << pawnIndex) & pinnedMaskBoard) != 0){
+            if((pawnMap & pinnedMaskBoard) != 0){
                 // if pawn pinned
                 pMapMoveAhead &= pinnedPieces[pawnIndex];
                 pMapCapture &= pinnedPieces[pawnIndex];
@@ -762,6 +820,15 @@ public class MoveGenerator {
                 int to = Long.numberOfTrailingZeros(pMapMoveAhead);
                 long pieceBoard = (1L << to);
                 pMapMoveAhead &= (pMapMoveAhead - 1);
+
+
+                //check for double move bug
+                if(Math.abs(pawnIndex - to) == 16){
+                    int indexInFrontOfPawn = isWhite ? pawnIndex + 8 : pawnIndex - 8;
+                    if((allPieces & (1L << indexInFrontOfPawn)) != 0){
+                        continue;
+                    }
+                }
 
 
                 //check for promotion
@@ -845,7 +912,193 @@ public class MoveGenerator {
 
 
     private void generateRookMoves(BitBoard board, MoveList moves){
+        long FileA = 0x8080808080808080L;
+        long FileH = 0x0101010101010101L;
+        long Rank1 = 0x00000000000000FFL;
+        long Rank8 = 0xFF00000000000000L;
 
+
+        long enemyPieces, allyPieces;
+        long rookBoard;
+        if(isWhite){
+            rookBoard = board.getWhiteRookBoard();
+            enemyPieces = board.getBlackPieces();
+            allyPieces = board.getWhitePieces();
+        }else{
+            rookBoard = board.getBlackRookBoard();
+            enemyPieces = board.getWhitePieces();
+            allyPieces = board.getBlackPieces();
+        }
+
+        while(rookBoard != 0){
+            int rookIndex = Long.numberOfTrailingZeros(rookBoard);
+            long rookPieceBoard = (1L << rookIndex);
+            rookBoard &= (rookBoard - 1);
+
+            long rMap = rookMoves[rookIndex];
+
+            //check for pin
+            if((rMap & pinnedMaskBoard) != 0){
+                rMap &= pinnedPieces[rookIndex];
+            }
+            //check for check
+            rMap &= checkMask;
+
+            long conflictingPieces = rMap & (allyPieces | enemyPieces);
+            long conflictingEnemyPieces = rMap & enemyPieces;
+            long conflictingAllyPieces = rMap & allyPieces;
+
+            long rMapNew = 0;
+            printWithMessage("ROOK MOVE MAP: ", rMap);
+
+
+
+            int index = 1;
+            //south
+            while((rMap & ))
+
+
+
+
+            long southRay = rayMovement[rookIndex][(rookIndex % 8)] | (1L << (rookIndex % 8));
+            southRay &= rMap;
+            //printWithMessage("South Ray: ", southRay);
+
+            long eastRay = rayMovement[rookIndex][rookIndex - (rookIndex % 8)] | (1L << (rookIndex - (rookIndex % 8)));
+            eastRay &= rMap;
+            //printWithMessage("East Ray: ", eastRay);
+
+            long westRay = rayMovement[rookIndex][rookIndex + (7 - (rookIndex % 8))] | (1L << (rookIndex + (7 - (rookIndex % 8))));
+            westRay &= rMap;
+            //printWithMessage("West Ray: ", westRay);
+
+            long northRay = rayMovement[rookIndex][56 + (rookIndex % 8)] | (1L << (56 + rookIndex % 8));
+            northRay &= rMap;
+            //printWithMessage("North Ray: ", northRay);
+
+            long rookPieceBoardCopy = rookPieceBoard;
+
+            if(southRay != 0){
+                //check for enemy or ally pieces
+                int emptyPieceIndex = 63 - Long.numberOfLeadingZeros(southRay & conflictingPieces); //only for south
+                long emptyMap = (1L << emptyPieceIndex);
+                while(((rookPieceBoard >>> 8) & emptyMap) == 0 && rookPieceBoard & ){
+                    //TODO fix adding logic
+                    rMapNew |= (rookPieceBoard >>> 8);
+                    rookPieceBoard = rookPieceBoard >>> 8;
+                }
+
+                if((rookPieceBoard & enemyPieces) != 0){
+                    //generate capture move
+                    int capture = getPieceAt(board, rookPieceBoard);
+                    moves.addMove(Move.encode(
+                            rookIndex,
+                            Long.numberOfTrailingZeros(rookPieceBoard),
+                            isWhite ? 2 : 10,
+                            capture,
+                            1,
+                            0,
+                            0,
+                            0,
+                            0
+                    ));
+                }
+            }
+
+
+            rookPieceBoard = rookPieceBoardCopy;
+            if(eastRay != 0){
+                //check for enemy or ally pieces
+                int emptyPieceIndex = 63 - Long.numberOfLeadingZeros(southRay & conflictingPieces); //only for east
+                long emptyMap = (1L << emptyPieceIndex);
+                while(((rookPieceBoard >>> 1) & emptyMap) == 0){
+                    //TODO fix adding logic
+                    rMapNew |= (rookPieceBoard >>> 1);
+                    rookPieceBoard = rookPieceBoard >>> 1;
+                }
+
+                if((rookPieceBoard & enemyPieces) != 0){
+                    //generate capture move
+                    int capture = getPieceAt(board, rookPieceBoard);
+                    moves.addMove(Move.encode(
+                            rookIndex,
+                            Long.numberOfTrailingZeros(rookPieceBoard),
+                            isWhite ? 2 : 10,
+                            capture,
+                            1,
+                            0,
+                            0,
+                            0,
+                            0
+                    ));
+                }
+            }
+
+
+            rookPieceBoard = rookPieceBoardCopy;
+            if(westRay != 0){
+                //check for enemy or ally pieces
+                int emptyPieceIndex =Long.numberOfTrailingZeros(southRay & conflictingPieces); //only for west
+                long emptyMap = (1L << emptyPieceIndex);
+                while(((rookPieceBoard << 1) & emptyMap) == 0){
+                    //TODO fix adding logic
+                    rMapNew |= (rookPieceBoard << 1);
+                    rookPieceBoard = rookPieceBoard << 1;
+                }
+
+                if((rookPieceBoard & enemyPieces) != 0){
+                    //generate capture move
+                    int capture = getPieceAt(board, rookPieceBoard);
+                    moves.addMove(Move.encode(
+                            rookIndex,
+                            Long.numberOfTrailingZeros(rookPieceBoard),
+                            isWhite ? 2 : 10,
+                            capture,
+                            1,
+                            0,
+                            0,
+                            0,
+                            0
+                    ));
+                }
+            }
+
+
+
+            rookPieceBoard = rookPieceBoardCopy;
+            if(northRay != 0){
+                //check for enemy or ally pieces
+                int emptyPieceIndex = Long.numberOfTrailingZeros(southRay & conflictingPieces); //only for south
+                long emptyMap = (1L << emptyPieceIndex);
+                while(((rookPieceBoard << 8) & emptyPieceIndex) == 0){
+                    //TODO fix adding logic
+                    rMapNew |= (rookPieceBoard << 8);
+                    rookPieceBoard = rookPieceBoard << 8;
+                }
+
+                if((rookPieceBoard & enemyPieces) != 0){
+                    //generate capture move
+                    int capture = getPieceAt(board, rookPieceBoard);
+                    moves.addMove(Move.encode(
+                            rookIndex,
+                            Long.numberOfTrailingZeros(rookPieceBoard),
+                            isWhite ? 2 : 10,
+                            capture,
+                            1,
+                            0,
+                            0,
+                            0,
+                            0
+                    ));
+                }
+            }
+
+            printWithMessage("South Ray: ", southRay);
+            printWithMessage("East Ray: ", eastRay);
+            printWithMessage("West Ray: ", westRay);
+            printWithMessage("North Ray: ", northRay);
+
+        }
     }
 
 
@@ -941,6 +1194,7 @@ public class MoveGenerator {
             if ((targetMask & board.getWhiteBishopBoard()) != 0) return 3;
             if ((targetMask & board.getWhiteQueenBoard()) != 0)  return 4;
         }
+        //TODO if we ever get to capture the king is check mate(should not happen as the list of moves get's verified to be nonempty for check mate validity)
         return -1;
     }
 

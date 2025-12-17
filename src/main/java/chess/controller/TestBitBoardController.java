@@ -44,9 +44,14 @@ public class TestBitBoardController {
     @FXML
     private Button blackKingBtn;
     @FXML
-    private ComboBox<Integer> whitePawnPositionCombo;
+    private ComboBox<Integer> whitePawnAheadPositionCombo;
     @FXML
-    private ComboBox<Integer> blackPawnPositionCombo;
+    private ComboBox<Integer> blackPawnAheadPositionCombo;
+    @FXML
+    private ComboBox<Integer> whitePawnCapturePositionCombo;
+     @FXML
+    private ComboBox<Integer> blackPawnCapturePositionCombo;
+
     @FXML
     private ComboBox<Integer> kingPositionCombo;
     @FXML
@@ -97,8 +102,10 @@ public class TestBitBoardController {
     private void setupComboBoxes() {
         // Populate all three ComboBoxes with values 1-64
         for (int i = 1; i <= 64; i++) {
-            whitePawnPositionCombo.getItems().add(i);
-            blackPawnPositionCombo.getItems().add(i);
+            whitePawnAheadPositionCombo.getItems().add(i);
+            blackPawnAheadPositionCombo.getItems().add(i);
+            whitePawnCapturePositionCombo.getItems().add(i);
+            blackPawnCapturePositionCombo.getItems().add(i);
             kingPositionCombo.getItems().add(i);
             knightPositionCombo.getItems().add(i);
             bishopPositionCombo.getItems().add(i);
@@ -109,17 +116,31 @@ public class TestBitBoardController {
         }
 
         // Add listeners to update board when selection changes
-        whitePawnPositionCombo.setOnAction(e -> {
-            Integer position = whitePawnPositionCombo.getValue();
+        whitePawnAheadPositionCombo.setOnAction(e -> {
+            Integer position = whitePawnAheadPositionCombo.getValue();
             if (position != null) {
                 drawPieces(position, moveGenerator.pawnMoves[0][position - 1]);
             }
         });
 
-        blackPawnPositionCombo.setOnAction(e -> {
-            Integer position = blackPawnPositionCombo.getValue();
+        blackPawnAheadPositionCombo.setOnAction(e -> {
+            Integer position = blackPawnAheadPositionCombo.getValue();
             if (position != null) {
                 drawPieces(position, moveGenerator.pawnMoves[2][position - 1]);
+            }
+        });
+
+        whitePawnCapturePositionCombo.setOnAction(e -> {
+            Integer position = whitePawnCapturePositionCombo.getValue();
+            if (position != null) {
+                drawPieces(position, moveGenerator.pawnMoves[1][position - 1]);
+            }
+        });
+
+        blackPawnCapturePositionCombo.setOnAction(e -> {
+            Integer position = blackPawnCapturePositionCombo.getValue();
+            if (position != null) {
+                drawPieces(position, moveGenerator.pawnMoves[3][position - 1]);
             }
         });
 

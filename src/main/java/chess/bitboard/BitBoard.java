@@ -75,11 +75,11 @@ public class BitBoard implements Board {
     }
 
     public long getWhitePieces() {
-        return board[6];
+        return board[0] | board[1] | board[2] | board[3] | board[4] | board[5];
     }
 
     public long getBlackPieces() {
-        return board[7];
+        return  board[8] | board[9] | board[10] | board[11] | board[12] | board[13];
     }
 
     public long getWhiteSlidingPieces() {
