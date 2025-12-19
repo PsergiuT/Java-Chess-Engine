@@ -178,10 +178,10 @@ public class PlayerBotController {
                         validMovesFromSelectedSquare.addMove(Moves[i]);
                     }
                 }
-                showAvailablePositions();
                 if(lastSelectedRow != -1 && lastSelectedCol != -1) {
                     resetSquareStyle(lastSelectedRow, lastSelectedCol);
                 }
+                showAvailablePositions();
             }
 
         } else {
@@ -201,7 +201,6 @@ public class PlayerBotController {
 
                     // Switch turns
                     currentTurnLabel.setText(board.isWhiteTurn ? "White" : "Black");
-
 
                     // Deselect
                     setSquareStyleAfterMove(selectedRow, selectedCol, "#ffffff");
@@ -227,6 +226,8 @@ public class PlayerBotController {
                     // Switch turns
                     currentTurnLabel.setText(board.isWhiteTurn ? "White" : "Black");
 
+                    updateBoardDisplay();
+
 
                     // Deselect
                     setSquareStyleAfterMove(fromRow, fromCol, "#5f5f5f");
@@ -238,7 +239,7 @@ public class PlayerBotController {
                     botLastSelectedCol = fromCol;
 
 
-                    break;
+                       break;
                 }
             }
 

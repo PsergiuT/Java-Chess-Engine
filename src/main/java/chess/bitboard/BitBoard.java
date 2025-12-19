@@ -13,6 +13,15 @@ public class BitBoard implements Board {
     private Double timeLeftForBlack;
     private int enPassantSquare = -1;
 
+    private boolean whiteQueenCastle = true;
+    private boolean blackQueenCastle = true;
+    private boolean whiteKingCastle = true;
+    private boolean blackKingCastle = true;
+
+    public void setIsWhiteTurn(boolean isWhiteTurn) {
+        this.isWhiteTurn = isWhiteTurn;
+    }
+
     public Double getTimeForWhite() {
         return timeLeftForWhite;
     }
@@ -73,6 +82,100 @@ public class BitBoard implements Board {
     public long getBlackKingBoard() {
         return board[13];
     }
+
+    public int getNumberOfMovesLeft() {
+        return numberOfMovesLeft;
+    }
+
+    public boolean isWhiteQueenCastle() {
+        return whiteQueenCastle;
+    }
+
+    public boolean isBlackQueenCastle() {
+        return blackQueenCastle;
+    }
+
+    public boolean isWhiteKingCastle() {
+        return whiteKingCastle;
+    }
+
+    public boolean isBlackKingCastle() {
+        return blackKingCastle;
+    }
+
+    public void setEnPassantSquare(int enPassantSquare) {
+        this.enPassantSquare = enPassantSquare;
+    }
+
+    public void setNumberOfMovesLeft(int numberOfMovesLeft) {
+        this.numberOfMovesLeft = numberOfMovesLeft;
+    }
+
+    public void setWhiteQueenCastle(boolean whiteQueenCastle) {
+        this.whiteQueenCastle = whiteQueenCastle;
+    }
+
+    public void setBlackQueenCastle(boolean blackQueenCastle) {
+        this.blackQueenCastle = blackQueenCastle;
+    }
+
+    public void setWhiteKingCastle(boolean whiteKingCastle) {
+        this.whiteKingCastle = whiteKingCastle;
+    }
+
+    public void setBlackKingCastle(boolean blackKingCastle) {
+        this.blackKingCastle = blackKingCastle;
+    }
+
+    public void setWhitePawnBoard(long board) {
+        this.board[0] = board;
+    }
+
+    public void setWhiteKnightBoard(long board) {
+        this.board[1] = board;
+    }
+
+    public void setWhiteRookBoard(long board) {
+        this.board[2] = board;
+    }
+
+    public void setWhiteBishopBoard(long board) {
+        this.board[3] = board;
+    }
+
+    public void setWhiteQueenBoard(long board) {
+        this.board[4] = board;
+    }
+
+    public void setWhiteKingBoard(long board) {
+        this.board[5] = board;
+    }
+
+
+    public void setBlackPawnBoard(long board) {
+        this.board[8] = board;
+    }
+
+    public void setBlackKnightBoard(long board) {
+        this.board[9] = board;
+    }
+
+    public void setBlackRookBoard(long board) {
+        this.board[10] = board;
+    }
+
+    public void setBlackBishopBoard(long board) {
+        this.board[11] = board;
+    }
+
+    public void setBlackQueenBoard(long board) {
+        this.board[12] = board;
+    }
+
+    public void setBlackKingBoard(long board) {
+        this.board[13] = board;
+    }
+
 
     public long getWhitePieces() {
         return board[0] | board[1] | board[2] | board[3] | board[4] | board[5];
@@ -144,6 +247,19 @@ public class BitBoard implements Board {
 
     private void capturePiece(int move) {
         board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move)));
+
+        if(Move.getTo(move) == 0){
+            whiteQueenCastle = false;
+        }
+        if(Move.getTo(move) == 7){
+            whiteKingCastle = false;
+        }
+        if(Move.getTo(move) == 56){
+            blackQueenCastle = false;
+        }
+        if(Move.getTo(move) == 63){
+            blackKingCastle = false;
+        }
     }
 
     private void movePiece(int move) {
@@ -154,8 +270,32 @@ public class BitBoard implements Board {
         else{
             this.enPassantSquare = -1;
         }
+
         board[Move.getPiece(move)] &= ~(1L << Move.getFrom(move));
         board[Move.getPiece(move)] |= 1L << Move.getTo(move);
+
+        if(Move.getPiece(move) == 5){
+            whiteKingCastle = false;
+            whiteQueenCastle = false;
+        }
+
+        if(Move.getPiece(move) == 13){
+            blackKingCastle = false;
+            blackQueenCastle = false;
+        }
+
+        if(Move.getPiece(move) == 2 && Move.getFrom(move) == 0){
+            whiteQueenCastle = false;
+        }
+        if(Move.getPiece(move) == 2 && Move.getFrom(move) == 7){
+            whiteKingCastle = false;
+        }
+        if(Move.getPiece(move) == 10 && Move.getFrom(move) == 56){
+            blackQueenCastle = false;
+        }
+        if(Move.getPiece(move) == 10 && Move.getFrom(move) == 63){
+            blackKingCastle = false;
+        }
     }
 
     private void move(int move) {
@@ -168,15 +308,35 @@ public class BitBoard implements Board {
         }
 
         if (Move.isCastling(move)) {
-            if((board[Move.getPiece(move)] & (0x8000000000000080L)) != 0){
-                //if rook on the left
-                //move king(+3) on the left
-                board[Move.getPiece(move) + 3] = board[Move.getPiece(move)] << 2;
-            }else{
-                //if rook on the right
-                //move king(+3) on the right
-                board[Move.getPiece(move) + 3] = board[Move.getPiece(move)] >> 2;
+            if(isWhiteTurn) {
+                whiteKingCastle = false;
+                whiteQueenCastle = false;
+
+                if(Move.getTo(move) == 6){
+                    //if rook on the left
+                    board[2] ^= 0x0000000000000080L;      //delete the rook on the left
+                    board[2] |= 0x0000000000000020L;
+                }else{
+                    //if rook on the right
+                    board[2] ^= 0x0000000000000001L;      //delete the rook on the right
+                    board[2] |= 0x0000000000000008L;
+                }
             }
+            else {
+                blackKingCastle = false;
+                blackQueenCastle = false;
+
+                if(Move.getTo(move) == 62){
+                    //if rook on the left
+                    board[10] ^= 0x8000000000000000L;      //delete the rook on the left
+                    board[10] |= 0x2000000000000000L;
+                }else{
+                    //if rook on the right
+                    board[10] ^= 0x1000000000000000L;      //delete the rook on the left
+                    board[10] |= 0x8000000000000000L;
+                }
+            }
+
             return;
         }
 
