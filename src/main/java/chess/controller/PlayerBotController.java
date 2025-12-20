@@ -8,6 +8,7 @@ import chess.move.MoveList;
 import chess.search.Bot;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -44,6 +45,10 @@ public class PlayerBotController {
     private int lastSelectedCol = -1;
     private int botLastSelectedRow = -1;
     private int botLastSelectedCol = -1;
+    private int selectedMove = -1;
+
+    @FXML
+    private Button undoBtn;
 
 
     private Image whitePawnImg;
@@ -109,6 +114,16 @@ public class PlayerBotController {
 
                 chessBoard.add(square, col, row);
             }
+        }
+    }
+
+
+    @FXML
+    private void onUndoClick(){
+        if(selectedMove != -1){
+            board.undoMove(selectedMove);
+            selectedMove = -1;
+            updateBoardDisplay();
         }
     }
 
@@ -197,10 +212,13 @@ public class PlayerBotController {
                 if(indexInBoard == Move.getTo(validMoves[i])){
                     //printBoard();
                     board.makeMove(validMoves[i]);
+                    selectedMove = validMoves[i];
                     movePiece(selectedRow, selectedCol, row, col);
 
                     // Switch turns
                     currentTurnLabel.setText(board.isWhiteTurn ? "White" : "Black");
+
+                    updateBoardDisplay();
 
                     // Deselect
                     setSquareStyleAfterMove(selectedRow, selectedCol, "#ffffff");
@@ -209,34 +227,34 @@ public class PlayerBotController {
                     }
 
                     //--------------make bot move---------------
-                    int bestMove = Bot.bestMove(board, moveGenerator, board.isWhiteTurn);
-
-                    if(bestMove == -1){
-                        //checkmate
-                        MessageAlert.showMessage(null, Alert.AlertType.INFORMATION, "Checkmate!", "Checkmate!");
-                    }
-
-                    board.makeMove(bestMove);
-                    int fromRow = 7 - (Move.getFrom(bestMove) / 8);
-                    int fromCol = 7 - (Move.getFrom(bestMove) % 8);
-                    int toRow = 7 - (Move.getTo(bestMove) / 8);
-                    int toCol = 7 - (Move.getTo(bestMove) % 8);
-                    movePiece(fromRow, fromCol, toRow, toCol);
-
-                    // Switch turns
-                    currentTurnLabel.setText(board.isWhiteTurn ? "White" : "Black");
-
-                    updateBoardDisplay();
-
-
-                    // Deselect
-                    setSquareStyleAfterMove(fromRow, fromCol, "#5f5f5f");
-                    if(botLastSelectedCol != -1 && botLastSelectedRow != -1) {
-                        resetSquareStyle(botLastSelectedRow, botLastSelectedCol);
-                    }
-
-                    botLastSelectedRow = fromRow;
-                    botLastSelectedCol = fromCol;
+//                    int bestMove = Bot.bestMove(board, moveGenerator, board.isWhiteTurn);
+//
+//                    if(bestMove == -1){
+//                        //checkmate
+//                        MessageAlert.showMessage(null, Alert.AlertType.INFORMATION, "Checkmate!", "Checkmate!");
+//                    }
+//
+//                    board.makeMove(bestMove);
+//                    int fromRow = 7 - (Move.getFrom(bestMove) / 8);
+//                    int fromCol = 7 - (Move.getFrom(bestMove) % 8);
+//                    int toRow = 7 - (Move.getTo(bestMove) / 8);
+//                    int toCol = 7 - (Move.getTo(bestMove) % 8);
+//                    movePiece(fromRow, fromCol, toRow, toCol);
+//
+//                    // Switch turns
+//                    currentTurnLabel.setText(board.isWhiteTurn ? "White" : "Black");
+//
+//                    updateBoardDisplay();
+//
+//
+//                    // Deselect
+//                    setSquareStyleAfterMove(fromRow, fromCol, "#5f5f5f");
+//                    if(botLastSelectedCol != -1 && botLastSelectedRow != -1) {
+//                        resetSquareStyle(botLastSelectedRow, botLastSelectedCol);
+//                    }
+//
+//                    botLastSelectedRow = fromRow;
+//                    botLastSelectedCol = fromCol;
 
 
                        break;

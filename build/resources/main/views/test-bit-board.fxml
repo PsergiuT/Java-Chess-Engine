@@ -147,4 +147,16 @@
         </GridPane>
     </VBox>
 
+
+    <VBox spacing="10" alignment="CENTER">
+        <GridPane fx:id="boardImagesGrid" hgap="2" vgap="2"
+                  style="-fx-background-color: #1a1a1a; -fx-padding: 10;">
+        </GridPane>
+
+
+        <Label text="Fen positions:" style="-fx-text-fill: #cccccc; -fx-font-size: 12px;"/>
+        <ComboBox fx:id="fenCombo" prefWidth="150" promptText="Select position"/>
+
+    </VBox>
+
 </HBox>

@@ -14,6 +14,17 @@ public class Move {
                 (from            & 0x3F);
     }
 
+    public static void printMove(int move){
+        System.out.println("----------------------------------------");
+        System.out.println("From  : " + getFrom(move));
+        System.out.println("To    : " + getTo(move));
+        System.out.println("Piece : " + getPiece(move));
+        System.out.println("Capt  : " + getCapture(move));
+        System.out.println("Promo : " + getPromotion(move));
+        System.out.println("----------------------------------------");
+
+    }
+
     public static int getPiece(int move){
         return (move >> 12) & 0xF;
     }

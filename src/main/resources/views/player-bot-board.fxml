@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.control.Button?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="chess.controller.PlayerBotController"
@@ -56,6 +57,13 @@
                 <Label text="Move Count:" style="-fx-text-fill: #cccccc; -fx-font-size: 14px;"/>
                 <Label fx:id="moveCountLabel" text="0"
                        style="-fx-text-fill: white; -fx-font-size: 16px;"/>
+            </VBox>
+
+            <VBox>
+                <!-- Undo Button -->
+                <Button fx:id="undoBtn"
+                        text="Undo"
+                        onMouseClicked="#onUndoClick" />
             </VBox>
 
         </VBox>

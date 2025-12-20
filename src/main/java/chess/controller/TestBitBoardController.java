@@ -2,12 +2,18 @@ package chess.controller;
 
 import chess.bitboard.BitBoard;
 import chess.bitboard.MoveGenerator;
+import chess.search.FenTranslator;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+
+import java.util.Objects;
 
 public class TestBitBoardController {
 
@@ -18,6 +24,12 @@ public class TestBitBoardController {
     private Label boardTitle;
     @FXML
     private GridPane boardGrid;
+
+    @FXML
+    private GridPane boardImagesGrid;
+
+    @FXML
+    private StackPane[][] squares = new StackPane[8][8];
 
     @FXML
     private Button whitePawnBtn;
@@ -66,6 +78,24 @@ public class TestBitBoardController {
     private ComboBox<Integer> rayCombo1;
     @FXML
     private ComboBox<Integer> rayCombo2;
+    @FXML
+    private ComboBox<String> fenCombo;
+
+    private Image whitePawnImg;
+    private Image whiteRookImg;
+    private Image whiteKnightImg;
+    private Image whiteBishopImg;
+    private Image whiteQueenImg;
+    private Image whiteKingImg;
+    private Image blackPawnImg;
+    private Image blackRookImg;
+    private Image blackKnightImg;
+    private Image blackBishopImg;
+    private Image blackQueenImg;
+    private Image blackKingImg;
+
+
+
 
 
 
@@ -79,6 +109,7 @@ public class TestBitBoardController {
         this.moveGenerator = new MoveGenerator();
         setupBoard();
         setupComboBoxes();
+        loadPieceImages();
     }
 
     private void setupBoard() {
@@ -94,6 +125,82 @@ public class TestBitBoardController {
                         "; -fx-border-color: black; -fx-font-size: 20px;");
 
                 boardGrid.add(cell, col, row);
+
+                StackPane square = new StackPane();
+                square.setPrefSize(80, 80);
+
+                // Checkerboard pattern
+                String color2 = (row + col) % 2 == 0 ? "#f0d9b5" : "#b58863";
+                square.setStyle("-fx-background-color: " + color2 + "; -fx-border-color: #000000; -fx-border-width: 1;");
+
+                // Store reference
+                squares[row][col] = square;
+                boardImagesGrid.add(square, col, row);
+            }
+        }
+    }
+
+
+    private void loadPieceImages() {
+        // Load images from resources folder
+        // Adjust paths according to your project structure
+        try {
+            whitePawnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/white_pawn.png")));
+            whiteRookImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/white_rook.png")));
+            whiteKnightImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/white_knight.png")));
+            whiteBishopImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/white_bishop.png")));
+            whiteQueenImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/white_queen.png")));
+            whiteKingImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/white_king.png")));
+
+            blackPawnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/black_pawn.png")));
+            blackRookImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/black_rook.png")));
+            blackKnightImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/black_knight.png")));
+            blackBishopImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/black_bishop.png")));
+            blackQueenImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/black_queen.png")));
+            blackKingImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/black_king.png")));
+        } catch (Exception e) {
+            System.out.println("Error loading images: " + e.getMessage());
+        }
+    }
+
+
+    private void updateBoardDisplay() {
+        // Clear all squares
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                squares[row][col].getChildren().clear();
+            }
+        }
+
+        // Draw pieces based on bitboards
+        drawPieces(board.getWhitePawnBoard(), whitePawnImg);
+        drawPieces(board.getWhiteRookBoard(), whiteRookImg);
+        drawPieces(board.getWhiteKnightBoard(), whiteKnightImg);
+        drawPieces(board.getWhiteBishopBoard(), whiteBishopImg);
+        drawPieces(board.getWhiteQueenBoard(), whiteQueenImg);
+        drawPieces(board.getWhiteKingBoard(), whiteKingImg);
+
+        drawPieces(board.getBlackPawnBoard(), blackPawnImg);
+        drawPieces(board.getBlackRookBoard(), blackRookImg);
+        drawPieces(board.getBlackKnightBoard(), blackKnightImg);
+        drawPieces(board.getBlackBishopBoard(), blackBishopImg);
+        drawPieces(board.getBlackQueenBoard(), blackQueenImg);
+        drawPieces(board.getBlackKingBoard(), blackKingImg);
+    }
+
+
+    private void drawPieces(long bitboard, Image pieceImage) {
+        for (int i = 0; i < 64; i++) {
+            if (((bitboard >> i) & 1) == 1) {
+                int row = 7 - (i / 8);
+                int col = 7 - (i % 8);
+
+                ImageView pieceView = new ImageView(pieceImage);
+                pieceView.setFitWidth(70);
+                pieceView.setFitHeight(70);
+                pieceView.setPreserveRatio(true);
+
+                squares[row][col].getChildren().add(pieceView);
             }
         }
     }
@@ -113,6 +220,11 @@ public class TestBitBoardController {
             queenPositionCombo.getItems().add(i);
             rayCombo1.getItems().add(i);
             rayCombo2.getItems().add(i);
+        }
+
+        String[] FEN = FenTranslator.FENS;
+        for (String s : FEN) {
+            fenCombo.getItems().add(s);
         }
 
         // Add listeners to update board when selection changes
@@ -199,6 +311,13 @@ public class TestBitBoardController {
                 drawPieces(position2, moveGenerator.rayMovement[position1 - 1][position2 - 1]);
                 System.out.println(moveGenerator.rayMovement[position1 - 1][position2 - 1]);
             }
+        });
+
+        fenCombo.setOnAction(e -> {
+            String fen = fenCombo.getValue();
+            FenTranslator.translate(fen, board);
+
+            updateBoardDisplay();
         });
     }
 
@@ -321,5 +440,7 @@ public class TestBitBoardController {
         long boardPieces = board.getBlackKingBoard();
         drawPieces(boardPieces);
     }
+
+
 
 }

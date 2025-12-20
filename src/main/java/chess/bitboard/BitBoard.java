@@ -12,11 +12,17 @@ public class BitBoard implements Board {
     private Double timeLeftForWhite;
     private Double timeLeftForBlack;
     private int enPassantSquare = -1;
+    private int lastEnPassantSquare = -1;
 
     private boolean whiteQueenCastle = true;
     private boolean blackQueenCastle = true;
     private boolean whiteKingCastle = true;
     private boolean blackKingCastle = true;
+
+    private boolean lastWhiteQueenCastle = true;
+    private boolean lastBlackQueenCastle = true;
+    private boolean lastWhiteKingCastle = true;
+    private boolean lastBlackKingCastle = true;
 
     public void setIsWhiteTurn(boolean isWhiteTurn) {
         this.isWhiteTurn = isWhiteTurn;
@@ -212,8 +218,8 @@ public class BitBoard implements Board {
         board[1] |= 0b01000010;        //Knight
         board[2] |= 0b10000001;        //Rook
         board[3] |= 0b00100100;        //Bishop
-        board[4] |= 0b00001000;        //Queen
-        board[5] |= 0b00010000;        //King
+        board[4] |= 0b00010000;        //Queen
+        board[5] |= 0b00001000;        //King
         board[6] = board[0] | board[1] | board[2] | board[3] | board[4] | board[5];
 
 
@@ -249,20 +255,21 @@ public class BitBoard implements Board {
         board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move)));
 
         if(Move.getTo(move) == 0){
-            whiteQueenCastle = false;
-        }
-        if(Move.getTo(move) == 7){
             whiteKingCastle = false;
         }
+        if(Move.getTo(move) == 7){
+            whiteQueenCastle = false;
+        }
         if(Move.getTo(move) == 56){
-            blackQueenCastle = false;
+            blackKingCastle = false;
         }
         if(Move.getTo(move) == 63){
-            blackKingCastle = false;
+            blackQueenCastle = false;
         }
     }
 
     private void movePiece(int move) {
+        this.lastEnPassantSquare = enPassantSquare;
         if(Move.getPiece(move) % 8 == 0 && Math.abs(Move.getFrom(move) - Move.getTo(move)) == 16){
             //pawn moved to double square
             this.enPassantSquare = (Move.getFrom(move) + Move.getTo(move)) / 2;
@@ -275,26 +282,34 @@ public class BitBoard implements Board {
         board[Move.getPiece(move)] |= 1L << Move.getTo(move);
 
         if(Move.getPiece(move) == 5){
+            lastWhiteKingCastle = whiteKingCastle;
+            lastWhiteQueenCastle = whiteQueenCastle;
             whiteKingCastle = false;
             whiteQueenCastle = false;
         }
 
         if(Move.getPiece(move) == 13){
+            lastBlackKingCastle = blackKingCastle;
+            lastBlackQueenCastle = blackQueenCastle;
             blackKingCastle = false;
             blackQueenCastle = false;
         }
 
         if(Move.getPiece(move) == 2 && Move.getFrom(move) == 0){
-            whiteQueenCastle = false;
-        }
-        if(Move.getPiece(move) == 2 && Move.getFrom(move) == 7){
+            lastWhiteKingCastle = whiteKingCastle;
             whiteKingCastle = false;
         }
+        if(Move.getPiece(move) == 2 && Move.getFrom(move) == 7){
+            lastWhiteQueenCastle = whiteQueenCastle;
+            whiteQueenCastle = false;
+        }
         if(Move.getPiece(move) == 10 && Move.getFrom(move) == 56){
-            blackQueenCastle = false;
+            lastBlackKingCastle = blackKingCastle;
+            blackKingCastle = false;
         }
         if(Move.getPiece(move) == 10 && Move.getFrom(move) == 63){
-            blackKingCastle = false;
+            lastBlackQueenCastle = blackQueenCastle;
+            blackQueenCastle = false;
         }
     }
 
@@ -312,28 +327,28 @@ public class BitBoard implements Board {
                 whiteKingCastle = false;
                 whiteQueenCastle = false;
 
-                if(Move.getTo(move) == 6){
+                if(Move.getTo(move) == 5){
                     //if rook on the left
                     board[2] ^= 0x0000000000000080L;      //delete the rook on the left
-                    board[2] |= 0x0000000000000020L;
+                    board[2] |= 0x0000000000000010L;
                 }else{
                     //if rook on the right
                     board[2] ^= 0x0000000000000001L;      //delete the rook on the right
-                    board[2] |= 0x0000000000000008L;
+                    board[2] |= 0x0000000000000004L;
                 }
             }
             else {
                 blackKingCastle = false;
                 blackQueenCastle = false;
 
-                if(Move.getTo(move) == 62){
+                if(Move.getTo(move) == 61){
                     //if rook on the left
                     board[10] ^= 0x8000000000000000L;      //delete the rook on the left
-                    board[10] |= 0x2000000000000000L;
+                    board[10] |= 0x1000000000000000L;
                 }else{
                     //if rook on the right
-                    board[10] ^= 0x1000000000000000L;      //delete the rook on the left
-                    board[10] |= 0x8000000000000000L;
+                    board[10] ^= 0x0100000000000000L;      //delete the rook on the left
+                    board[10] |= 0x0400000000000000L;
                 }
             }
 
@@ -351,4 +366,133 @@ public class BitBoard implements Board {
             isCheckMate = true;
         }
     }
+
+
+
+
+
+
+
+
+
+    public void undoMove(int move){
+        isWhiteTurn = !isWhiteTurn;
+        numberOfMovesLeft++;
+        undoMovePiece(move);
+
+        if (Move.isCapture(move)) {
+            if (Move.isEnPassant(move)) undoCaptureEnPassant(move);
+            else undoCapturePiece(move);
+            return;
+        }
+
+        if (Move.isCastling(move)) {
+            if(isWhiteTurn) {
+                whiteKingCastle = true;
+                whiteQueenCastle = true;
+
+                if(Move.getTo(move) == 5){
+                    //if rook on the left
+                    board[2] ^= 0x0000000000000010L;      //delete the rook on the left
+                    board[2] |= 0x0000000000000080L;
+                }else{
+                    //if rook on the right
+                    board[2] ^= 0x0000000000000004L;      //delete the rook on the right
+                    board[2] |= 0x0000000000000001L;
+                }
+            }
+            else {
+                blackKingCastle = true;
+                blackQueenCastle = true;
+
+                if(Move.getTo(move) == 61){
+                    //if rook on the left
+                    board[10] ^= 0x1000000000000000L;      //delete the rook on the left
+                    board[10] |= 0x8000000000000000L;
+                }else{
+                    //if rook on the right
+                    board[10] ^= 0x0400000000000000L;      //delete the rook on the left
+                    board[10] |= 0x0100000000000000L;
+                }
+            }
+
+            return;
+        }
+
+        if (Move.isPromotion(move)) {
+            //replace the pawn with the new promotion piece
+            board[Move.getPromotion(move)] &= ~(1L << Move.getTo(move));
+            board[Move.getPiece(move)] |= 1L << Move.getFrom(move);
+            return;
+        }
+
+        if (move == 0) {
+            isCheckMate = true;
+        }
+    }
+
+
+
+
+    private void undoMovePiece(int move){
+        this.enPassantSquare = lastEnPassantSquare;
+
+        board[Move.getPiece(move)] |= 1L << Move.getFrom(move);
+        board[Move.getPiece(move)] &= ~(1L << Move.getTo(move));
+
+
+        if(Move.getPiece(move) == 5){
+            whiteKingCastle = lastWhiteKingCastle;
+            whiteQueenCastle = lastWhiteQueenCastle;
+        }
+
+        if(Move.getPiece(move) == 13){
+            blackKingCastle = lastBlackKingCastle;
+            blackQueenCastle = lastBlackQueenCastle;
+        }
+
+        if(Move.getPiece(move) == 2 && Move.getFrom(move) == 0){
+            whiteKingCastle = lastWhiteKingCastle;
+        }
+        if(Move.getPiece(move) == 2 && Move.getFrom(move) == 7){
+            whiteQueenCastle = lastWhiteQueenCastle;
+        }
+        if(Move.getPiece(move) == 10 && Move.getFrom(move) == 56){
+            blackKingCastle = lastBlackKingCastle;
+        }
+        if(Move.getPiece(move) == 10 && Move.getFrom(move) == 63){
+            blackQueenCastle = lastBlackQueenCastle;
+
+        }
+    }
+
+
+
+
+    private void undoCaptureEnPassant(int move) {
+        if (isWhiteTurn) board[8] |= 1L << (Move.getTo(move) - 8);
+        else board[0] |= 1L << (Move.getTo(move) + 8);
+
+    }
+
+
+
+    private void undoCapturePiece(int move) {
+        board[Move.getCapture(move)] |= 1L << (Move.getTo(move));
+
+        if(Move.getTo(move) == 0){
+            whiteKingCastle = lastWhiteKingCastle;
+        }
+        if(Move.getTo(move) == 7){
+            whiteQueenCastle = lastWhiteQueenCastle;
+        }
+        if(Move.getTo(move) == 56){
+            blackKingCastle = lastBlackKingCastle;
+        }
+        if(Move.getTo(move) == 63){
+            blackQueenCastle = lastWhiteQueenCastle;
+        }
+    }
+
+
 }

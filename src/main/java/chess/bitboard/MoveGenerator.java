@@ -477,7 +477,7 @@ public class MoveGenerator {
         this.pinnedMaskBoard = 0;
         while(orthogonalSlidingAttacks != 0){
             int enemy = Long.numberOfTrailingZeros(orthogonalSlidingAttacks);
-            long ray = rayMovement[kingIndex][enemy];
+            long ray = rayMovement[kingIndex][enemy] & ~(1L << kingIndex);
             orthogonalSlidingAttacks &= (orthogonalSlidingAttacks - 1);
 
             long allyHits = ray & allyPieces;                                           //all the ally pieces that are in the ray
@@ -517,7 +517,7 @@ public class MoveGenerator {
 
         while(diagonalSlidingAttacks != 0){
             int enemy = Long.numberOfTrailingZeros(diagonalSlidingAttacks);
-            long ray = rayMovement[kingIndex][enemy];
+            long ray = rayMovement[kingIndex][enemy] & ~(1L << kingIndex);
             diagonalSlidingAttacks &= (diagonalSlidingAttacks - 1);
 
             long allyHits = ray & allyPieces;                                           //all the ally pieces that are in the ray
@@ -584,10 +584,11 @@ public class MoveGenerator {
 
         while(orthogonalSlidingAttacks != 0){
             int enemy = Long.numberOfTrailingZeros(orthogonalSlidingAttacks);
-            long ray = rayMovement[kingIndex][enemy];
+            long ray = rayMovement[kingIndex][enemy] & ~(1L << kingIndex);
             orthogonalSlidingAttacks &= (orthogonalSlidingAttacks - 1);
 
             //we don't want anything between the king and the sliding piece
+
             if((ray & allPieces) == 0){
                 checkers ++;
                 attackingMap |= (ray | (1L << enemy));
@@ -597,7 +598,7 @@ public class MoveGenerator {
 
         while(diagonalSlidingAttacks != 0){
             int enemy = Long.numberOfTrailingZeros(diagonalSlidingAttacks);
-            long ray = rayMovement[kingIndex][enemy];
+            long ray = rayMovement[kingIndex][enemy] & ~(1L << kingIndex);
             diagonalSlidingAttacks &= (diagonalSlidingAttacks - 1);
 
             //we don't want anything between the king and the sliding piece
@@ -669,7 +670,7 @@ public class MoveGenerator {
 
         while(orthogonalSlidingAttacks != 0){
             int enemy = Long.numberOfTrailingZeros(orthogonalSlidingAttacks);
-            if((rayMovement[square][enemy] & allPieces) == 0)          //if hits == 0
+            if(((rayMovement[square][enemy] & ~(1L << square)) & allPieces) == 0)          //if hits == 0
                 return true;
 
             orthogonalSlidingAttacks &= (orthogonalSlidingAttacks - 1);
@@ -678,7 +679,7 @@ public class MoveGenerator {
 
         while(diagonalSlidingAttacks != 0){
             int enemy = Long.numberOfTrailingZeros(diagonalSlidingAttacks);
-            if((rayMovement[square][enemy] & allPieces) == 0){
+            if(((rayMovement[square][enemy] & ~(1L << square)) & allPieces) == 0){
                 return true;
             }
 
@@ -728,29 +729,28 @@ public class MoveGenerator {
         MoveList moves = new MoveList();
 
         calculatePinnedMask(board);
-        if(isWhite){
-            System.out.println("----------------------");
-            System.out.println("______WHITE__MOVES____");
-            System.out.println("----------------------");
-            System.out.println("CHECK MASK: ");
-            printMask(checkMask);
-            System.out.println("PINNED MASK: ");
-            printMask(pinnedMaskBoard);
-        }
-        else{
-            System.out.println("----------------------");
-            System.out.println("______BLACK__MOVES____");
-            System.out.println("----------------------");
-            System.out.println("CHECK MASK: ");
-            printMask(checkMask);
-            System.out.println("PINNED MASK: ");
-            printMask(pinnedMaskBoard);
-        }
-
         if(!calculateCheckMask(board)){
             generateKingMoves(board, moves);
             return moves;
         }
+//        if(isWhite){
+//            System.out.println("----------------------");
+//            System.out.println("______WHITE__MOVES____");
+//            System.out.println("----------------------");
+//            System.out.println("CHECK MASK: ");
+//            printMask(checkMask);
+//            System.out.println("PINNED MASK: ");
+//            printMask(pinnedMaskBoard);
+//        }
+//        else{
+//            System.out.println("----------------------");
+//            System.out.println("______BLACK__MOVES____");
+//            System.out.println("----------------------");
+//            System.out.println("CHECK MASK: ");
+//            printMask(checkMask);
+//            System.out.println("PINNED MASK: ");
+//            printMask(pinnedMaskBoard);
+//        }
 
         generatePawnMoves(board, moves);
         generateRookMoves(board, moves);
@@ -1168,7 +1168,6 @@ public class MoveGenerator {
 
         while(bishopBoard != 0){
             int bishopIndex = Long.numberOfTrailingZeros(bishopBoard);
-            long bishopPieceBoard = (1L << bishopIndex);
             bishopBoard &= (bishopBoard - 1);
 
             long bMap = bishopMoves[bishopIndex];
@@ -1323,7 +1322,6 @@ public class MoveGenerator {
 
         while(queenBoard != 0){
             int queenIndex = Long.numberOfTrailingZeros(queenBoard);
-            long queenPieceBoard = (1L << queenIndex);
             queenBoard &= (queenBoard - 1);
 
             long qMap = queenMoves[queenIndex];
@@ -1556,8 +1554,6 @@ public class MoveGenerator {
 
 
     private void generateKingMoves(BitBoard board, MoveList moves){
-        //TODO problem with the check mask in here
-
         long enemyPieces, allyPieces;
         long kingBoard;
         if(isWhite){
@@ -1565,17 +1561,17 @@ public class MoveGenerator {
             enemyPieces = board.getBlackPieces();
             allyPieces = board.getWhitePieces();
 
-            if(board.isWhiteKingCastle() && (rayMovement[7][4] & (enemyPieces | allyPieces)) == 0 ){
+            if(board.isWhiteQueenCastle() && (rayMovement[7][3] & (enemyPieces | allyPieces)) == 0 ){
                 //castling is available and there are no pieces between king and rook
-                if(!isSquareAttacked(board, 5) && !isSquareAttacked(board, 6)){
+                if(!isSquareAttacked(board, 4) && !isSquareAttacked(board, 5)){
                     //check if king passes through check and if it lands on check
-                    moves.addMove(Move.encode(4, 6, 5, 0, 0, 0, 1, 0, 0));
+                    moves.addMove(Move.encode(3, 5, 5, 0, 0, 0, 1, 0, 0));
                 }
 
             }
-            if(board.isWhiteQueenCastle() && (rayMovement[0][4] & (enemyPieces | allyPieces)) == 0 ){
-                if(!isSquareAttacked(board, 3) && !isSquareAttacked(board, 2)){
-                    moves.addMove(Move.encode(4, 2, 5, 0, 0, 0, 1, 0, 0));
+            if(board.isWhiteKingCastle() && (rayMovement[0][3] & (enemyPieces | allyPieces)) == 0 ){
+                if(!isSquareAttacked(board, 2) && !isSquareAttacked(board, 1)){
+                    moves.addMove(Move.encode(3, 1, 5, 0, 0, 0, 1, 0, 0));
                 }
             }
         }else{
@@ -1583,15 +1579,15 @@ public class MoveGenerator {
             enemyPieces = board.getWhitePieces();
             allyPieces = board.getBlackPieces();
 
-            if(board.isBlackKingCastle() && (rayMovement[60][63] & (enemyPieces | allyPieces)) == 0 ){
-                if(!isSquareAttacked(board, 61) && !isSquareAttacked(board, 62)){
-                    moves.addMove(Move.encode(60, 62, 13, 0, 0, 0, 1, 0, 0));
+            if(board.isBlackQueenCastle() && (rayMovement[59][63] & (enemyPieces | allyPieces)) == 0 ){
+                if(!isSquareAttacked(board, 60) && !isSquareAttacked(board, 61)){
+                    moves.addMove(Move.encode(59, 61, 13, 0, 0, 0, 1, 0, 0));
                 }
 
             }
-            if(board.isBlackQueenCastle() && (rayMovement[60][56] & (enemyPieces | allyPieces)) == 0 ){
-                if(!isSquareAttacked(board, 59) && !isSquareAttacked(board, 58)){
-                    moves.addMove(Move.encode(60, 58, 13, 0, 0, 0, 1, 0, 0));
+            if(board.isBlackKingCastle() && (rayMovement[59][56] & (enemyPieces | allyPieces)) == 0 ){
+                if(!isSquareAttacked(board, 58) && !isSquareAttacked(board, 57)){
+                    moves.addMove(Move.encode(59, 57, 13, 0, 0, 0, 1, 0, 0));
                 }
             }
         }
