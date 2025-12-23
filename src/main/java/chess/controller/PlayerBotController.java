@@ -38,7 +38,6 @@ public class PlayerBotController {
     private StackPane selectedSquare = null;
     private int selectedRow = -1;
     private int selectedCol = -1;
-    private MoveGenerator moveGenerator;
     private MoveList validMovesFromSelectedSquare = new MoveList();
 
     private int lastSelectedRow = -1;
@@ -177,7 +176,7 @@ public class PlayerBotController {
         if (selectedSquare == null) {
             // Select a piece
             if (!squares[row][col].getChildren().isEmpty()) {
-                MoveList allValidMoves = moveGenerator.generateMoves(board, board.isWhiteTurn);
+                MoveList allValidMoves = MoveGenerator.generateMoves(board, board.isWhiteTurn);
                 int[] Moves = allValidMoves.getMoves();
 
                 selectedSquare = squares[row][col];
@@ -203,7 +202,7 @@ public class PlayerBotController {
 
             int[] validMoves = validMovesFromSelectedSquare.getMoves();
 
-            if(moveGenerator.generateMoves(board, board.isWhiteTurn).getSize() == 0){
+            if(MoveGenerator.generateMoves(board, board.isWhiteTurn).getSize() == 0){
                 //checkmate
                 MessageAlert.showMessage(null, Alert.AlertType.INFORMATION, "Checkmate!", "Checkmate!");
             }
@@ -227,7 +226,7 @@ public class PlayerBotController {
                     }
 
                     //--------------make bot move---------------
-//                    int bestMove = Bot.bestMove(board, moveGenerator, board.isWhiteTurn);
+//                    int bestMove = Bot.bestMove(board);
 //
 //                    if(bestMove == -1){
 //                        //checkmate
@@ -348,7 +347,6 @@ public class PlayerBotController {
     @FXML
     private void initialize(){
         board = new BitBoard(10, 200);
-        moveGenerator = new MoveGenerator();
         loadPieceImages();
         setupBoard();
         updateBoardDisplay();

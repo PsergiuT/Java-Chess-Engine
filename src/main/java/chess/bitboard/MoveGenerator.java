@@ -5,22 +5,22 @@ import chess.move.MoveList;
 
 public class MoveGenerator {
 
-    public final long[] knightMoves = new long[64];
-    public final long[] kingMoves = new long[64];
-    public final long[][] pawnMoves = new long[4][64];
-    public final long[] queenMoves = new long[64];
-    public final long[] bishopMoves = new long[64];
-    public final long[] rookMoves = new long[64];
+    public final static long[] knightMoves = new long[64];
+    public final static long[] kingMoves = new long[64];
+    public final static long[][] pawnMoves = new long[4][64];
+    public final static long[] queenMoves = new long[64];
+    public final static long[] bishopMoves = new long[64];
+    public final static long[] rookMoves = new long[64];
 
 
 
-    public final long[] pinnedPieces = new long[64];
-    public final long[][] rayMovement = new long[64][64];
-    public long pinnedMaskBoard;
-    public long checkMask = 0xFFFFFFFFFFFFFFFFL;
-    private final long[][] precomputedDirections = new long[8][64]; //0, 1, 2, 3 are for Orthogonal directions, 4, 5, 6, 7 are for Diagonal directions
+    public final static long[] pinnedPieces = new long[64];
+    public final static long[][] rayMovement = new long[64][64];
+    public static long pinnedMaskBoard;
+    public static long checkMask = 0xFFFFFFFFFFFFFFFFL;
+    private final static long[][] precomputedDirections = new long[8][64]; //0, 1, 2, 3 are for Orthogonal directions, 4, 5, 6, 7 are for Diagonal directions
 
-    private boolean isWhite;
+    private static boolean isWhite;
 
 
 
@@ -29,7 +29,7 @@ public class MoveGenerator {
     //-----------------------------------------------------------------------------------------------------------------------
 
 
-    private void precomputeKnightMoves(){
+    private static void precomputeKnightMoves(){
         long FileA = 0x8080808080808080L;
         long FileB = 0x4040404040404040L;
         long FileG = 0x0202020202020202L;
@@ -50,7 +50,7 @@ public class MoveGenerator {
         }
     }
 
-    private void precomputeKingMoves(){
+    private static void precomputeKingMoves(){
         long FileA = 0x8080808080808080L;
         long FileH = 0x0101010101010101L;
 
@@ -69,7 +69,7 @@ public class MoveGenerator {
         }
     }
 
-    private void precomputePawnMoves(){
+    private static void precomputePawnMoves(){
         long FileA = 0x8080808080808080L;
         long FileH = 0x0101010101010101L;
 
@@ -164,7 +164,7 @@ public class MoveGenerator {
     }
 
 
-    private void precomputeSlidingMoves(){
+    private static void precomputeSlidingMoves(){
         long FileA = 0x8080808080808080L;
         long FileH = 0x0101010101010101L;
         long Rank1 = 0x00000000000000FFL;
@@ -269,7 +269,7 @@ public class MoveGenerator {
     }
 
 
-    private void precomputeRayMovement(){
+    private static void precomputeRayMovement(){
 
         //TODO NEEDS REFACTORING ASAP :))
         long FileA = 0x8080808080808080L;
@@ -409,7 +409,26 @@ public class MoveGenerator {
 
 
 
-    public MoveGenerator(){
+//    public MoveGenerator(){
+//        precomputeKnightMoves();
+//        precomputeKingMoves();
+//        precomputePawnMoves();
+//        precomputeSlidingMoves();
+//        precomputeRayMovement();
+//
+//        for(int i = 0; i < 64; i++)
+//        {
+//            rookMoves[i] = precomputedDirections[0][i] | precomputedDirections[1][i] | precomputedDirections[2][i] | precomputedDirections[3][i];
+//            bishopMoves[i] = precomputedDirections[4][i] | precomputedDirections[5][i] | precomputedDirections[6][i] | precomputedDirections[7][i];
+//            queenMoves[i] = rookMoves[i] | bishopMoves[i];
+//        }
+//
+//        //bishop
+//        //queen                 //all need magic bitboards or sliding moves generation
+//        //rook
+//    }
+
+    static{
         precomputeKnightMoves();
         precomputeKingMoves();
         precomputePawnMoves();
@@ -441,7 +460,7 @@ public class MoveGenerator {
 
 
 
-    private void calculatePinnedMask(BitBoard board){
+    private static void calculatePinnedMask(BitBoard board){
         long orthogonalSlidingAttacks;
         long diagonalSlidingAttacks;
         long enemyPawn, enemyRook, enemyBishop, enemyQueen, allyPawn;
@@ -474,7 +493,7 @@ public class MoveGenerator {
 
         // enemy pawn, knight and king can't pin
 
-        this.pinnedMaskBoard = 0;
+        pinnedMaskBoard = 0;
         while(orthogonalSlidingAttacks != 0){
             int enemy = Long.numberOfTrailingZeros(orthogonalSlidingAttacks);
             long ray = rayMovement[kingIndex][enemy] & ~(1L << kingIndex);
@@ -534,7 +553,7 @@ public class MoveGenerator {
 
 
 
-    private boolean calculateCheckMask(BitBoard board){
+    private static boolean calculateCheckMask(BitBoard board){
         //update the checkMask
         int kingIndex;
         long enemyPawn, enemyKnight, enemyRook, enemyBishop, enemyQueen;
@@ -624,7 +643,7 @@ public class MoveGenerator {
 
 
 
-    private boolean isSquareAttacked(BitBoard board, int square){
+    private static boolean isSquareAttacked(BitBoard board, int square){
         //THIS ONLY WORKS FOR KING AND CASTLING CHECK
         long enemyPawn, enemyKnight, enemyRook, enemyBishop, enemyQueen, enemyKing;
         long pawnBoard;
@@ -698,7 +717,7 @@ public class MoveGenerator {
     //-----------------------------------------------------------------------------------------------------------------------
 
 
-    private void printMask(long mask){
+    private static void printMask(long mask){
         System.out.println(" ");
 
         for(int i = 0; i < 8; i++){
@@ -714,7 +733,7 @@ public class MoveGenerator {
         System.out.println(" ");
     }
 
-    private void printWithMessage(String message, long mask){
+    private static void printWithMessage(String message, long mask){
         System.out.println("-----------------------------");
         System.out.println(message);
         System.out.println("-----------------------------");
@@ -724,8 +743,8 @@ public class MoveGenerator {
 
 
 
-    public MoveList generateMoves(BitBoard board, boolean isWhite){
-        this.isWhite = isWhite;
+    public static MoveList generateMoves(BitBoard board, boolean isW){
+        isWhite = isW;
         MoveList moves = new MoveList();
 
         calculatePinnedMask(board);
@@ -764,10 +783,12 @@ public class MoveGenerator {
 
 
 
-    private void generatePawnMoves(BitBoard board, MoveList moves){
+    private static void generatePawnMoves(BitBoard board, MoveList moves){
         long pawnBoard;
         int piece;
         long enemyPieces;
+        long FileA = 0x8080808080808080L;
+        long FileH = 0x0101010101010101L;
         long allPieces = board.getWhitePieces() | board.getBlackPieces();
         long Rank1 = 0x00000000000000FFL;
         long Rank8 = 0xFF00000000000000L;
@@ -820,17 +841,7 @@ public class MoveGenerator {
             long enPassantMask = (1L << board.getEnPassantSquare());
             if(board.getEnPassantSquare() != -1 && (pMapEnPassant & enPassantMask) != 0) {
                 // add the en passant move to the list
-                moves.addMove(Move.encode(
-                        pawnIndex,
-                        board.getEnPassantSquare(),
-                        piece,
-                        isWhite ? 8 : 0,
-                        1,
-                        0,
-                        0,
-                        1,
-                        0
-                ));
+                moves.addMove(Move.encode(pawnIndex, board.getEnPassantSquare(), piece, isWhite ? 8 : 0, 1, 0, 0, 1, 0));
             }
 
 
@@ -857,32 +868,12 @@ public class MoveGenerator {
                 if((pieceBoard & Rank1) != 0 || (pieceBoard & Rank8) != 0){
                     int startIndex = isWhite ? 1 : 9; //starting with the knight
                     for(int i = startIndex; i < startIndex + 4; i++){
-                        moves.addMove(Move.encode(
-                                pawnIndex,
-                                to,
-                                piece,
-                                0,
-                                0,
-                                1,
-                                0,
-                                0,
-                                i
-                        ));
+                        moves.addMove(Move.encode(pawnIndex, to, piece, 0, 0, 1, 0, 0, i));
                     }
                     continue;
                 }
 
-                moves.addMove(Move.encode(
-                        pawnIndex,
-                        to,
-                        piece,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0
-                ));
+                moves.addMove(Move.encode(pawnIndex, to, piece, 0, 0, 0, 0, 0, 0));
             }
 
 
@@ -899,32 +890,12 @@ public class MoveGenerator {
                 if((pieceBoardMask & Rank1) != 0 || (pieceBoardMask & Rank8) != 0){
                     int startIndex = isWhite ? 1 : 9; //starting with the knight
                     for(int i = startIndex; i < startIndex + 4; i++){
-                        moves.addMove(Move.encode(
-                                pawnIndex,
-                                to,
-                                piece,
-                                captured_piece,
-                                1,
-                                1,
-                                0,
-                                0,
-                                i
-                        ));
+                        moves.addMove(Move.encode(pawnIndex, to, piece, captured_piece, 1, 1, 0, 0, i));
                     }
                     continue;
                 }
 
-                moves.addMove(Move.encode(
-                        pawnIndex,
-                        to,
-                        piece,
-                        captured_piece,
-                        1,
-                        0,
-                        0,
-                        0,
-                        0
-                ));
+                moves.addMove(Move.encode(pawnIndex, to, piece, captured_piece, 1, 0, 0, 0, 0));
 
             }
         }
@@ -933,7 +904,10 @@ public class MoveGenerator {
 
 
 
-    private void generateRookMoves(BitBoard board, MoveList moves){
+
+
+
+    private static void generateRookMoves(BitBoard board, MoveList moves){
         long enemyPieces, allyPieces;
         long rookBoard;
         //castling
@@ -1090,7 +1064,7 @@ public class MoveGenerator {
 
 
 
-    private void generateKnightMoves(BitBoard board, MoveList moves){
+    private static void generateKnightMoves(BitBoard board, MoveList moves){
         //find all knights on the board for the given color
         long knightBoard;
         int piece;
@@ -1153,7 +1127,7 @@ public class MoveGenerator {
 
 
 
-    private void generateBishopMoves(BitBoard board, MoveList moves){
+    private static void generateBishopMoves(BitBoard board, MoveList moves){
         long enemyPieces, allyPieces;
         long bishopBoard;
         if(isWhite){
@@ -1306,7 +1280,7 @@ public class MoveGenerator {
 
 
 
-    private void generateQueenMoves(BitBoard board, MoveList moves){
+    private static void generateQueenMoves(BitBoard board, MoveList moves){
         long enemyPieces, allyPieces;
         long queenBoard;
         if(isWhite){
@@ -1553,7 +1527,7 @@ public class MoveGenerator {
 
 
 
-    private void generateKingMoves(BitBoard board, MoveList moves){
+    private static void generateKingMoves(BitBoard board, MoveList moves){
         long enemyPieces, allyPieces;
         long kingBoard;
         if(isWhite){
@@ -1561,35 +1535,43 @@ public class MoveGenerator {
             enemyPieces = board.getBlackPieces();
             allyPieces = board.getWhitePieces();
 
-            if(board.isWhiteQueenCastle() && (rayMovement[7][3] & (enemyPieces | allyPieces)) == 0 ){
-                //castling is available and there are no pieces between king and rook
-                if(!isSquareAttacked(board, 4) && !isSquareAttacked(board, 5)){
-                    //check if king passes through check and if it lands on check
-                    moves.addMove(Move.encode(3, 5, 5, 0, 0, 0, 1, 0, 0));
-                }
+            if(!isSquareAttacked(board, 3)){
+                //if king is not in check
+                if(board.isWhiteQueenCastle() && (rayMovement[7][3] & (enemyPieces | allyPieces)) == 0 ){
+                    //castling is available and there are no pieces between king and rook
+                    if(!isSquareAttacked(board, 4) && !isSquareAttacked(board, 5)){
+                        //check if king passes through check and if it lands on check
+                        moves.addMove(Move.encode(3, 5, 5, 0, 0, 0, 1, 0, 0));
+                    }
 
-            }
-            if(board.isWhiteKingCastle() && (rayMovement[0][3] & (enemyPieces | allyPieces)) == 0 ){
-                if(!isSquareAttacked(board, 2) && !isSquareAttacked(board, 1)){
-                    moves.addMove(Move.encode(3, 1, 5, 0, 0, 0, 1, 0, 0));
+                }
+                if(board.isWhiteKingCastle() && (rayMovement[0][3] & (enemyPieces | allyPieces)) == 0 ){
+                    if(!isSquareAttacked(board, 2) && !isSquareAttacked(board, 1)){
+                        moves.addMove(Move.encode(3, 1, 5, 0, 0, 0, 1, 0, 0));
+                    }
                 }
             }
+
         }else{
             kingBoard = board.getBlackKingBoard();
             enemyPieces = board.getWhitePieces();
             allyPieces = board.getBlackPieces();
 
-            if(board.isBlackQueenCastle() && (rayMovement[59][63] & (enemyPieces | allyPieces)) == 0 ){
-                if(!isSquareAttacked(board, 60) && !isSquareAttacked(board, 61)){
-                    moves.addMove(Move.encode(59, 61, 13, 0, 0, 0, 1, 0, 0));
-                }
+            if(!isSquareAttacked(board, 59)){
+                //if the king is not in check
+                if(board.isBlackQueenCastle() && (rayMovement[59][63] & (enemyPieces | allyPieces)) == 0 ){
+                    if(!isSquareAttacked(board, 60) && !isSquareAttacked(board, 61)){
+                        moves.addMove(Move.encode(59, 61, 13, 0, 0, 0, 1, 0, 0));
+                    }
 
-            }
-            if(board.isBlackKingCastle() && (rayMovement[59][56] & (enemyPieces | allyPieces)) == 0 ){
-                if(!isSquareAttacked(board, 58) && !isSquareAttacked(board, 57)){
-                    moves.addMove(Move.encode(59, 57, 13, 0, 0, 0, 1, 0, 0));
+                }
+                if(board.isBlackKingCastle() && (rayMovement[59][56] & (enemyPieces | allyPieces)) == 0 ){
+                    if(!isSquareAttacked(board, 58) && !isSquareAttacked(board, 57)){
+                        moves.addMove(Move.encode(59, 57, 13, 0, 0, 0, 1, 0, 0));
+                    }
                 }
             }
+
         }
 
 
@@ -1625,7 +1607,7 @@ public class MoveGenerator {
 
 
 
-    private int getPieceAt(BitBoard board, long targetMask) {
+    private static int getPieceAt(BitBoard board, long targetMask) {
         if (isWhite) {
             if ((targetMask & board.getBlackPawnBoard()) != 0)   return 8; // Pawn
             if ((targetMask & board.getBlackKnightBoard()) != 0) return 9; // Knight

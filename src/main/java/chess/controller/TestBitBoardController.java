@@ -18,7 +18,6 @@ import java.util.Objects;
 public class TestBitBoardController {
 
     private BitBoard board;
-    private MoveGenerator moveGenerator;
 
     @FXML
     private Label boardTitle;
@@ -106,7 +105,6 @@ public class TestBitBoardController {
 
     @FXML
     private void initialize(){
-        this.moveGenerator = new MoveGenerator();
         setupBoard();
         setupComboBoxes();
         loadPieceImages();
@@ -231,49 +229,49 @@ public class TestBitBoardController {
         whitePawnAheadPositionCombo.setOnAction(e -> {
             Integer position = whitePawnAheadPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.pawnMoves[0][position - 1]);
+                drawPieces(position, MoveGenerator.pawnMoves[0][position - 1]);
             }
         });
 
         blackPawnAheadPositionCombo.setOnAction(e -> {
             Integer position = blackPawnAheadPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.pawnMoves[2][position - 1]);
+                drawPieces(position, MoveGenerator.pawnMoves[2][position - 1]);
             }
         });
 
         whitePawnCapturePositionCombo.setOnAction(e -> {
             Integer position = whitePawnCapturePositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.pawnMoves[1][position - 1]);
+                drawPieces(position, MoveGenerator.pawnMoves[1][position - 1]);
             }
         });
 
         blackPawnCapturePositionCombo.setOnAction(e -> {
             Integer position = blackPawnCapturePositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.pawnMoves[3][position - 1]);
+                drawPieces(position, MoveGenerator.pawnMoves[3][position - 1]);
             }
         });
 
         kingPositionCombo.setOnAction(e -> {
             Integer position = kingPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.kingMoves[position - 1]);
+                drawPieces(position, MoveGenerator.kingMoves[position - 1]);
             }
         });
 
         bishopPositionCombo.setOnAction(e -> {
             Integer position = bishopPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.bishopMoves[position - 1]);
+                drawPieces(position, MoveGenerator.bishopMoves[position - 1]);
             }
         });
 
         rookPositionCombo.setOnAction(e -> {
             Integer position = rookPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.rookMoves[position - 1]);
+                drawPieces(position, MoveGenerator.rookMoves[position - 1]);
             }
         });
 
@@ -281,7 +279,7 @@ public class TestBitBoardController {
         queenPositionCombo.setOnAction(e -> {
             Integer position = queenPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.queenMoves[position - 1]);
+                drawPieces(position, MoveGenerator.queenMoves[position - 1]);
             }
         });
 
@@ -289,7 +287,7 @@ public class TestBitBoardController {
         knightPositionCombo.setOnAction(e -> {
             Integer position = knightPositionCombo.getValue();
             if (position != null) {
-                drawPieces(position, moveGenerator.knightMoves[position - 1]);
+                drawPieces(position, MoveGenerator.knightMoves[position - 1]);
             }
         });
 
@@ -298,8 +296,8 @@ public class TestBitBoardController {
             Integer position2 = rayCombo2.getValue();
 
             if (position1 != null && position2 != null) {
-                drawPieces(position1, moveGenerator.rayMovement[position1 - 1][position2 - 1]);
-                System.out.println(moveGenerator.rayMovement[position1 - 1][position2 - 1]);
+                drawPieces(position1, MoveGenerator.rayMovement[position1 - 1][position2 - 1]);
+                System.out.println(MoveGenerator.rayMovement[position1 - 1][position2 - 1]);
             }
         });
 
@@ -308,8 +306,8 @@ public class TestBitBoardController {
             Integer position2 = rayCombo2.getValue();
 
             if (position1 != null && position2 != null) {
-                drawPieces(position2, moveGenerator.rayMovement[position1 - 1][position2 - 1]);
-                System.out.println(moveGenerator.rayMovement[position1 - 1][position2 - 1]);
+                drawPieces(position2, MoveGenerator.rayMovement[position1 - 1][position2 - 1]);
+                System.out.println(MoveGenerator.rayMovement[position1 - 1][position2 - 1]);
             }
         });
 

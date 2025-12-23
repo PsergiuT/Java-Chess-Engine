@@ -1,22 +1,37 @@
 package chess.bitboard;
 
 import chess.move.Move;
+import lombok.Getter;
+import lombok.Setter;
 
 public class BitBoard implements Board {
+    @Getter
     private final long[] board = new long[14];
 
+    @Getter
+    @Setter
     private int numberOfMovesLeft;
 
     public boolean isWhiteTurn;
     public boolean isCheckMate;
-    private Double timeLeftForWhite;
-    private Double timeLeftForBlack;
+    private final Double timeLeftForWhite;
+    private final Double timeLeftForBlack;
+    @Getter
+    @Setter
     private int enPassantSquare = -1;
     private int lastEnPassantSquare = -1;
 
+    @Getter
+    @Setter
     private boolean whiteQueenCastle = true;
+    @Getter
+    @Setter
     private boolean blackQueenCastle = true;
+    @Getter
+    @Setter
     private boolean whiteKingCastle = true;
+    @Getter
+    @Setter
     private boolean blackKingCastle = true;
 
     private boolean lastWhiteQueenCastle = true;
@@ -89,50 +104,6 @@ public class BitBoard implements Board {
         return board[13];
     }
 
-    public int getNumberOfMovesLeft() {
-        return numberOfMovesLeft;
-    }
-
-    public boolean isWhiteQueenCastle() {
-        return whiteQueenCastle;
-    }
-
-    public boolean isBlackQueenCastle() {
-        return blackQueenCastle;
-    }
-
-    public boolean isWhiteKingCastle() {
-        return whiteKingCastle;
-    }
-
-    public boolean isBlackKingCastle() {
-        return blackKingCastle;
-    }
-
-    public void setEnPassantSquare(int enPassantSquare) {
-        this.enPassantSquare = enPassantSquare;
-    }
-
-    public void setNumberOfMovesLeft(int numberOfMovesLeft) {
-        this.numberOfMovesLeft = numberOfMovesLeft;
-    }
-
-    public void setWhiteQueenCastle(boolean whiteQueenCastle) {
-        this.whiteQueenCastle = whiteQueenCastle;
-    }
-
-    public void setBlackQueenCastle(boolean blackQueenCastle) {
-        this.blackQueenCastle = blackQueenCastle;
-    }
-
-    public void setWhiteKingCastle(boolean whiteKingCastle) {
-        this.whiteKingCastle = whiteKingCastle;
-    }
-
-    public void setBlackKingCastle(boolean blackKingCastle) {
-        this.blackKingCastle = blackKingCastle;
-    }
-
     public void setWhitePawnBoard(long board) {
         this.board[0] = board;
     }
@@ -183,28 +154,14 @@ public class BitBoard implements Board {
     }
 
 
+
+
     public long getWhitePieces() {
         return board[0] | board[1] | board[2] | board[3] | board[4] | board[5];
     }
 
     public long getBlackPieces() {
         return  board[8] | board[9] | board[10] | board[11] | board[12] | board[13];
-    }
-
-    public long getWhiteSlidingPieces() {
-        return board[2] | board[3] | board[4];
-    }
-
-    public long getBlackSlidingPieces() {
-        return board[10] | board[11] | board[12];
-    }
-
-    public long[] getBoard(){
-        return board;
-    }
-
-    public int getEnPassantSquare(){
-        return enPassantSquare;
     }
 
 
@@ -235,6 +192,9 @@ public class BitBoard implements Board {
     }
 
 
+
+
+
     public void makeMove(int move) {
         //no need to validate
         //just need to update the board
@@ -255,15 +215,19 @@ public class BitBoard implements Board {
         board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move)));
 
         if(Move.getTo(move) == 0){
+            lastWhiteKingCastle = whiteKingCastle;
             whiteKingCastle = false;
         }
         if(Move.getTo(move) == 7){
+            lastWhiteQueenCastle = whiteQueenCastle;
             whiteQueenCastle = false;
         }
         if(Move.getTo(move) == 56){
+            lastBlackKingCastle = blackKingCastle;
             blackKingCastle = false;
         }
         if(Move.getTo(move) == 63){
+            lastBlackQueenCastle = blackQueenCastle;
             blackQueenCastle = false;
         }
     }
@@ -282,33 +246,25 @@ public class BitBoard implements Board {
         board[Move.getPiece(move)] |= 1L << Move.getTo(move);
 
         if(Move.getPiece(move) == 5){
-            lastWhiteKingCastle = whiteKingCastle;
-            lastWhiteQueenCastle = whiteQueenCastle;
             whiteKingCastle = false;
             whiteQueenCastle = false;
         }
 
         if(Move.getPiece(move) == 13){
-            lastBlackKingCastle = blackKingCastle;
-            lastBlackQueenCastle = blackQueenCastle;
             blackKingCastle = false;
             blackQueenCastle = false;
         }
 
         if(Move.getPiece(move) == 2 && Move.getFrom(move) == 0){
-            lastWhiteKingCastle = whiteKingCastle;
             whiteKingCastle = false;
         }
         if(Move.getPiece(move) == 2 && Move.getFrom(move) == 7){
-            lastWhiteQueenCastle = whiteQueenCastle;
             whiteQueenCastle = false;
         }
         if(Move.getPiece(move) == 10 && Move.getFrom(move) == 56){
-            lastBlackKingCastle = blackKingCastle;
             blackKingCastle = false;
         }
         if(Move.getPiece(move) == 10 && Move.getFrom(move) == 63){
-            lastBlackQueenCastle = blackQueenCastle;
             blackQueenCastle = false;
         }
     }
@@ -319,13 +275,10 @@ public class BitBoard implements Board {
         if (Move.isCapture(move)) {
             if (Move.isEnPassant(move)) captureEnPassant(move);
             else capturePiece(move);
-            return;
         }
 
         if (Move.isCastling(move)) {
             if(isWhiteTurn) {
-                whiteKingCastle = false;
-                whiteQueenCastle = false;
 
                 if(Move.getTo(move) == 5){
                     //if rook on the left
@@ -338,8 +291,6 @@ public class BitBoard implements Board {
                 }
             }
             else {
-                blackKingCastle = false;
-                blackQueenCastle = false;
 
                 if(Move.getTo(move) == 61){
                     //if rook on the left
@@ -351,15 +302,12 @@ public class BitBoard implements Board {
                     board[10] |= 0x0400000000000000L;
                 }
             }
-
-            return;
         }
 
         if (Move.isPromotion(move)) {
             //replace the pawn with the new promotion piece
             board[Move.getPromotion(move)] |= 1L << Move.getTo(move);
             board[Move.getPiece(move)] &= ~(1L << Move.getTo(move));
-            return;
         }
 
         if (move == 0) {
@@ -383,14 +331,10 @@ public class BitBoard implements Board {
         if (Move.isCapture(move)) {
             if (Move.isEnPassant(move)) undoCaptureEnPassant(move);
             else undoCapturePiece(move);
-            return;
         }
 
         if (Move.isCastling(move)) {
             if(isWhiteTurn) {
-                whiteKingCastle = true;
-                whiteQueenCastle = true;
-
                 if(Move.getTo(move) == 5){
                     //if rook on the left
                     board[2] ^= 0x0000000000000010L;      //delete the rook on the left
@@ -402,9 +346,6 @@ public class BitBoard implements Board {
                 }
             }
             else {
-                blackKingCastle = true;
-                blackQueenCastle = true;
-
                 if(Move.getTo(move) == 61){
                     //if rook on the left
                     board[10] ^= 0x1000000000000000L;      //delete the rook on the left
@@ -416,14 +357,12 @@ public class BitBoard implements Board {
                 }
             }
 
-            return;
         }
 
         if (Move.isPromotion(move)) {
             //replace the pawn with the new promotion piece
             board[Move.getPromotion(move)] &= ~(1L << Move.getTo(move));
             board[Move.getPiece(move)] |= 1L << Move.getFrom(move);
-            return;
         }
 
         if (move == 0) {
@@ -439,31 +378,6 @@ public class BitBoard implements Board {
 
         board[Move.getPiece(move)] |= 1L << Move.getFrom(move);
         board[Move.getPiece(move)] &= ~(1L << Move.getTo(move));
-
-
-        if(Move.getPiece(move) == 5){
-            whiteKingCastle = lastWhiteKingCastle;
-            whiteQueenCastle = lastWhiteQueenCastle;
-        }
-
-        if(Move.getPiece(move) == 13){
-            blackKingCastle = lastBlackKingCastle;
-            blackQueenCastle = lastBlackQueenCastle;
-        }
-
-        if(Move.getPiece(move) == 2 && Move.getFrom(move) == 0){
-            whiteKingCastle = lastWhiteKingCastle;
-        }
-        if(Move.getPiece(move) == 2 && Move.getFrom(move) == 7){
-            whiteQueenCastle = lastWhiteQueenCastle;
-        }
-        if(Move.getPiece(move) == 10 && Move.getFrom(move) == 56){
-            blackKingCastle = lastBlackKingCastle;
-        }
-        if(Move.getPiece(move) == 10 && Move.getFrom(move) == 63){
-            blackQueenCastle = lastBlackQueenCastle;
-
-        }
     }
 
 
@@ -479,19 +393,6 @@ public class BitBoard implements Board {
 
     private void undoCapturePiece(int move) {
         board[Move.getCapture(move)] |= 1L << (Move.getTo(move));
-
-        if(Move.getTo(move) == 0){
-            whiteKingCastle = lastWhiteKingCastle;
-        }
-        if(Move.getTo(move) == 7){
-            whiteQueenCastle = lastWhiteQueenCastle;
-        }
-        if(Move.getTo(move) == 56){
-            blackKingCastle = lastBlackKingCastle;
-        }
-        if(Move.getTo(move) == 63){
-            blackQueenCastle = lastWhiteQueenCastle;
-        }
     }
 
 

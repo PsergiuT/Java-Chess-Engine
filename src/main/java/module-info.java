@@ -9,6 +9,7 @@ module chess {
     requires javafx.graphics;
     requires javafx.base;
     requires java.desktop;
+    requires static lombok;
 
 
     opens chess to javafx.fxml;
