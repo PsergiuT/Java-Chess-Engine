@@ -5,7 +5,6 @@ import chess.bitboard.BitBoard;
 import chess.bitboard.MoveGenerator;
 import chess.move.Move;
 import chess.move.MoveList;
-import chess.search.Bot;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -346,7 +345,7 @@ public class PlayerBotController {
 
     @FXML
     private void initialize(){
-        board = new BitBoard(10, 200);
+        board = new BitBoard(10);
         loadPieceImages();
         setupBoard();
         updateBoardDisplay();

@@ -18,7 +18,7 @@ public class TestBoardApplication extends Application {
         stage.setTitle("Test Board Page");
         stage.setScene(scene);
 
-        BitBoard board = new BitBoard(10,200);
+        BitBoard board = new BitBoard(10);
         TestBitBoardController controller = fxmlLoader.getController();
         controller.setBoard(board);
 

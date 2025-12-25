@@ -650,6 +650,7 @@ public class MoveGenerator {
         long allPieces = (board.getBlackPieces() | board.getWhitePieces());
         long orthogonalSlidingAttacks;
         long diagonalSlidingAttacks;
+
         if(isWhite){
             pawnBoard = pawnMoves[1][square];
             enemyPawn = board.getBlackPawnBoard();
@@ -1535,7 +1536,7 @@ public class MoveGenerator {
             enemyPieces = board.getBlackPieces();
             allyPieces = board.getWhitePieces();
 
-            if(!isSquareAttacked(board, 3)){
+            if(checkMask == -1){
                 //if king is not in check
                 if(board.isWhiteQueenCastle() && (rayMovement[7][3] & (enemyPieces | allyPieces)) == 0 ){
                     //castling is available and there are no pieces between king and rook
@@ -1557,7 +1558,7 @@ public class MoveGenerator {
             enemyPieces = board.getWhitePieces();
             allyPieces = board.getBlackPieces();
 
-            if(!isSquareAttacked(board, 59)){
+            if(checkMask == -1){
                 //if the king is not in check
                 if(board.isBlackQueenCastle() && (rayMovement[59][63] & (enemyPieces | allyPieces)) == 0 ){
                     if(!isSquareAttacked(board, 60) && !isSquareAttacked(board, 61)){
@@ -1608,19 +1609,22 @@ public class MoveGenerator {
 
 
     private static int getPieceAt(BitBoard board, long targetMask) {
-        if (isWhite) {
-            if ((targetMask & board.getBlackPawnBoard()) != 0)   return 8; // Pawn
-            if ((targetMask & board.getBlackKnightBoard()) != 0) return 9; // Knight
-            if ((targetMask & board.getBlackRookBoard()) != 0)   return 10; // Rook
-            if ((targetMask & board.getBlackBishopBoard()) != 0) return 11; // Bishop
-            if ((targetMask & board.getBlackQueenBoard()) != 0)  return 12; // Queen
-        } else {
-            if ((targetMask & board.getWhitePawnBoard()) != 0)   return 0;
-            if ((targetMask & board.getWhiteKnightBoard()) != 0) return 1;
-            if ((targetMask & board.getWhiteRookBoard()) != 0)   return 2;
-            if ((targetMask & board.getWhiteBishopBoard()) != 0) return 3;
-            if ((targetMask & board.getWhiteQueenBoard()) != 0)  return 4;
-        }
+            if (isWhite) {
+                if ((targetMask & board.getBlackPawnBoard()) != 0)   return 8;  // Pawn
+                if ((targetMask & board.getBlackKnightBoard()) != 0) return 9;  // Knight
+                if ((targetMask & board.getBlackRookBoard()) != 0)   return 10; // Rook
+                if ((targetMask & board.getBlackBishopBoard()) != 0) return 11; // Bishop
+                if ((targetMask & board.getBlackQueenBoard()) != 0)  return 12; // Queen
+                if ((targetMask & board.getBlackKingBoard()) != 0)   return 13; // King
+            } else {
+                if ((targetMask & board.getWhitePawnBoard()) != 0)   return 0;
+                if ((targetMask & board.getWhiteKnightBoard()) != 0) return 1;
+                if ((targetMask & board.getWhiteRookBoard()) != 0)   return 2;
+                if ((targetMask & board.getWhiteBishopBoard()) != 0) return 3;
+                if ((targetMask & board.getWhiteQueenBoard()) != 0)  return 4;
+                if ((targetMask & board.getWhiteKingBoard()) != 0)   return 5;
+            }
+
         //TODO if we ever get to capture the king is check mate(should not happen as the list of moves get's verified to be nonempty for check mate validity)
         return -1;
     }

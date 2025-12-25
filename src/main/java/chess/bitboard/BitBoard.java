@@ -4,40 +4,68 @@ import chess.move.Move;
 import lombok.Getter;
 import lombok.Setter;
 
+
 public class BitBoard implements Board {
     @Getter
     private final long[] board = new long[14];
 
-    @Getter
-    @Setter
-    private int numberOfMovesLeft;
+    private int[] savedBoardState = new int[2048];
+    private int index = 0;
+    @Getter @Setter
+    private int halfMoveClock;
 
     public boolean isWhiteTurn;
+    public boolean isCheck;
     public boolean isCheckMate;
     private final Double timeLeftForWhite;
     private final Double timeLeftForBlack;
     @Getter
     @Setter
     private int enPassantSquare = -1;
-    private int lastEnPassantSquare = -1;
 
-    @Getter
-    @Setter
-    private boolean whiteQueenCastle = true;
-    @Getter
-    @Setter
-    private boolean blackQueenCastle = true;
-    @Getter
-    @Setter
-    private boolean whiteKingCastle = true;
-    @Getter
-    @Setter
-    private boolean blackKingCastle = true;
+    int castlingRights = 0xF;
 
-    private boolean lastWhiteQueenCastle = true;
-    private boolean lastBlackQueenCastle = true;
-    private boolean lastWhiteKingCastle = true;
-    private boolean lastBlackKingCastle = true;
+    public void setWhiteKingCastle(boolean whiteKingCastle) {
+        if(whiteKingCastle) this.castlingRights |= (1 << 3) ;
+        else this.castlingRights &= ~(1 << 3);
+    }
+
+    public boolean isWhiteKingCastle() {
+        return (castlingRights & (1 << 3)) != 0;
+    }
+
+
+    public void setWhiteQueenCastle(boolean whiteQueenCastle) {
+        if(whiteQueenCastle) this.castlingRights |= (1 << 2) ;
+        else this.castlingRights &= ~(1 << 2);
+    }
+
+    public boolean isWhiteQueenCastle() {
+        return (castlingRights & (1 << 2)) != 0;
+    }
+
+
+
+    public void setBlackKingCastle(boolean blackKingCastle) {
+        if(blackKingCastle) this.castlingRights |= (1 << 1) ;
+        else this.castlingRights &= ~(1 << 1);
+    }
+
+    public boolean isBlackKingCastle() {
+        return (castlingRights & (1 << 1)) != 0;
+    }
+
+
+    public void setBlackQueenCastle(boolean blackQueenCastle) {
+        if(blackQueenCastle) this.castlingRights |= 1 ;
+        else this.castlingRights &= ~1;
+    }
+
+    public boolean isBlackQueenCastle() {
+        return (castlingRights & 1) != 0;
+    }
+
+
 
     public void setIsWhiteTurn(boolean isWhiteTurn) {
         this.isWhiteTurn = isWhiteTurn;
@@ -51,9 +79,6 @@ public class BitBoard implements Board {
         return timeLeftForBlack;
     }
 
-    public int getMovesLeft() {
-        return  numberOfMovesLeft;
-    }
 
     public long getWhitePawnBoard() {
         return board[0];
@@ -165,7 +190,7 @@ public class BitBoard implements Board {
     }
 
 
-    public BitBoard(double time, int numberOfMoves) {
+    public BitBoard(double time) {
         isWhiteTurn = true;
         isCheckMate = false;
         timeLeftForWhite = time;
@@ -188,7 +213,6 @@ public class BitBoard implements Board {
         board[13] |= board[5] << 8 * 7;      //King
         board[7] = board[8] | board[9] | board[10] | board[11] | board[12] | board[13];
 
-        this.numberOfMovesLeft = numberOfMoves;
     }
 
 
@@ -196,12 +220,9 @@ public class BitBoard implements Board {
 
 
     public void makeMove(int move) {
-        //no need to validate
-        //just need to update the board
+        saveGameState();
         move(move);
-
         isWhiteTurn = !isWhiteTurn;
-        numberOfMovesLeft--;
     }
 
 
@@ -215,25 +236,37 @@ public class BitBoard implements Board {
         board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move)));
 
         if(Move.getTo(move) == 0){
-            lastWhiteKingCastle = whiteKingCastle;
-            whiteKingCastle = false;
+            setWhiteKingCastle(false);
         }
         if(Move.getTo(move) == 7){
-            lastWhiteQueenCastle = whiteQueenCastle;
-            whiteQueenCastle = false;
+            setWhiteQueenCastle(false);
         }
         if(Move.getTo(move) == 56){
-            lastBlackKingCastle = blackKingCastle;
-            blackKingCastle = false;
+            setBlackKingCastle(false);
         }
         if(Move.getTo(move) == 63){
-            lastBlackQueenCastle = blackQueenCastle;
-            blackQueenCastle = false;
+            setBlackQueenCastle(false);
         }
     }
 
+    private void saveGameState() {
+        savedBoardState[index] = castlingRights & 0xF |
+                (enPassantSquare & 0xFF) << 4 |
+                (halfMoveClock & 0xFF) << 12;
+        index++;
+    }
+
+
+    private void loadGameState() {
+        index--;
+        int gameState = savedBoardState[index];
+        castlingRights = gameState & 0xF;
+        enPassantSquare = (gameState >> 4) & 0xFF;
+        halfMoveClock = (gameState >> 12) & 0xFF;
+
+    }
+
     private void movePiece(int move) {
-        this.lastEnPassantSquare = enPassantSquare;
         if(Move.getPiece(move) % 8 == 0 && Math.abs(Move.getFrom(move) - Move.getTo(move)) == 16){
             //pawn moved to double square
             this.enPassantSquare = (Move.getFrom(move) + Move.getTo(move)) / 2;
@@ -246,28 +279,29 @@ public class BitBoard implements Board {
         board[Move.getPiece(move)] |= 1L << Move.getTo(move);
 
         if(Move.getPiece(move) == 5){
-            whiteKingCastle = false;
-            whiteQueenCastle = false;
+            setWhiteKingCastle(false);
+            setWhiteQueenCastle(false);
         }
 
         if(Move.getPiece(move) == 13){
-            blackKingCastle = false;
-            blackQueenCastle = false;
+            setBlackKingCastle(false);
+            setBlackQueenCastle(false);
         }
 
         if(Move.getPiece(move) == 2 && Move.getFrom(move) == 0){
-            whiteKingCastle = false;
+            setWhiteKingCastle(false);
         }
         if(Move.getPiece(move) == 2 && Move.getFrom(move) == 7){
-            whiteQueenCastle = false;
+            setWhiteQueenCastle(false);
         }
         if(Move.getPiece(move) == 10 && Move.getFrom(move) == 56){
-            blackKingCastle = false;
+            setBlackKingCastle(false);
         }
         if(Move.getPiece(move) == 10 && Move.getFrom(move) == 63){
-            blackQueenCastle = false;
+            setBlackQueenCastle(false);
         }
     }
+
 
     private void move(int move) {
         movePiece(move);
@@ -313,6 +347,8 @@ public class BitBoard implements Board {
         if (move == 0) {
             isCheckMate = true;
         }
+
+
     }
 
 
@@ -325,8 +361,8 @@ public class BitBoard implements Board {
 
     public void undoMove(int move){
         isWhiteTurn = !isWhiteTurn;
-        numberOfMovesLeft++;
         undoMovePiece(move);
+        loadGameState();
 
         if (Move.isCapture(move)) {
             if (Move.isEnPassant(move)) undoCaptureEnPassant(move);
@@ -371,24 +407,16 @@ public class BitBoard implements Board {
     }
 
 
-
-
     private void undoMovePiece(int move){
-        this.enPassantSquare = lastEnPassantSquare;
-
         board[Move.getPiece(move)] |= 1L << Move.getFrom(move);
         board[Move.getPiece(move)] &= ~(1L << Move.getTo(move));
     }
 
 
-
-
     private void undoCaptureEnPassant(int move) {
         if (isWhiteTurn) board[8] |= 1L << (Move.getTo(move) - 8);
         else board[0] |= 1L << (Move.getTo(move) + 8);
-
     }
-
 
 
     private void undoCapturePiece(int move) {
