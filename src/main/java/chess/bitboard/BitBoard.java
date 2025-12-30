@@ -17,8 +17,8 @@ public class BitBoard implements Board {
     public boolean isWhiteTurn;
     public boolean isCheck;
     public boolean isCheckMate;
-    private final Double timeLeftForWhite;
-    private final Double timeLeftForBlack;
+    private Double timeLeftForWhite;
+    private Double timeLeftForBlack;
     @Getter
     @Setter
     private int enPassantSquare = -1;
@@ -70,6 +70,16 @@ public class BitBoard implements Board {
     public void setIsWhiteTurn(boolean isWhiteTurn) {
         this.isWhiteTurn = isWhiteTurn;
     }
+
+    public void decrementTimeForWhite(double time) {
+        timeLeftForWhite -= time;
+    }
+
+
+    public void decrementTimeForBlack(double time) {
+        timeLeftForBlack -= time;
+    }
+
 
     public Double getTimeForWhite() {
         return timeLeftForWhite;
@@ -221,18 +231,21 @@ public class BitBoard implements Board {
 
     public void makeMove(int move) {
         saveGameState();
+        halfMoveClock++;
         move(move);
         isWhiteTurn = !isWhiteTurn;
     }
 
 
     private void captureEnPassant(int move) {
+        halfMoveClock = 0;
         if (isWhiteTurn) board[8] &= ~(1L << (Move.getTo(move) - 8));
         else board[0] &= ~(1L << (Move.getTo(move) + 8));
 
     }
 
     private void capturePiece(int move) {
+        halfMoveClock = 0;
         board[Move.getCapture(move)] &= ~(1L << (Move.getTo(move)));
 
         if(Move.getTo(move) == 0){
@@ -277,6 +290,11 @@ public class BitBoard implements Board {
 
         board[Move.getPiece(move)] &= ~(1L << Move.getFrom(move));
         board[Move.getPiece(move)] |= 1L << Move.getTo(move);
+
+        //reset halfMoveClock
+        if(Move.getPiece(move) == 0 || Move.getPiece(move) == 8){
+            halfMoveClock = 0;
+        }
 
         if(Move.getPiece(move) == 5){
             setWhiteKingCastle(false);
@@ -344,10 +362,16 @@ public class BitBoard implements Board {
             board[Move.getPiece(move)] &= ~(1L << Move.getTo(move));
         }
 
-        if (move == 0) {
-            isCheckMate = true;
+        if (isWhiteTurn) {
+            if(getWhiteKingBoard() == 0){
+                isCheckMate = true;
+            }
         }
-
+        else{
+            if(getBlackKingBoard() == 0){
+                isCheckMate = true;
+            }
+        }
 
     }
 
@@ -401,8 +425,15 @@ public class BitBoard implements Board {
             board[Move.getPiece(move)] |= 1L << Move.getFrom(move);
         }
 
-        if (move == 0) {
-            isCheckMate = true;
+        if (isWhiteTurn) {
+            if(getWhiteKingBoard() != 0){
+                isCheckMate = false;
+            }
+        }
+        else{
+            if(getBlackKingBoard() != 0){
+                isCheckMate = false;
+            }
         }
     }
 

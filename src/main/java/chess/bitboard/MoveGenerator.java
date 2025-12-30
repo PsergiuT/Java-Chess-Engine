@@ -488,6 +488,14 @@ public class MoveGenerator {
             enemyPawn = board.getWhitePawnBoard();
         }
 
+        try{
+            orthogonalSlidingAttacks = (enemyRook | enemyQueen) & rookMoves[kingIndex];
+        }
+        catch(ArrayIndexOutOfBoundsException e){
+            System.out.println("kingIndex: " + kingIndex);
+            System.out.println("kingBoard: " + board.getWhiteKingBoard());
+        }
+
         orthogonalSlidingAttacks = (enemyRook | enemyQueen) & rookMoves[kingIndex];
         diagonalSlidingAttacks = (enemyBishop | enemyQueen) & bishopMoves[kingIndex];
 

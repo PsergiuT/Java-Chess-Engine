@@ -69,10 +69,10 @@ public class Main {
     }
 
     static void main(String[] args) {
-        TestPerft();
+        //TestPerft();
         //PerftTesting.testing();
         //TestBoardApplication.main(args);
         //PlayerBotApplication.main(args);
-        //BotVsBotApplication.main(args);
+        BotVsBotApplication.main(args);
     }
 }
