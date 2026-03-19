@@ -11,7 +11,7 @@
 <?import javafx.scene.control.Button?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="chess.controller.BotVsBotController"
+            fx:controller="controller.BotVsBotController"
             style="-fx-background-color: #2b2b2b;">
 
     <!-- Top - Black Player Info -->
