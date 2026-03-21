@@ -16,14 +16,19 @@ The core of the chess engine is the `BitBoard` class. To optimize performance an
 - **Make Move Method**: By leveraging bitwise operations (AND, OR, XOR, and bit shifting), the engine can perform ultra-fast operations, without the massive overhead of object instantiation and garbage collection. This method is responsible for physically moving the piece on the board (given a specified Move) while preserving a legal game state. It checks for EnPassant square, captures, castling and promotions.
 - **State Preservation**: The `BitBoard` efficiently handles game state preservation (`makeMove` and `undoMove`) using a small memory footprint. It stores necessary historical data (castling rights, en passant squares, half-move clock) in an array (`savedBoardState`) for efficient implementation of the undo method.
 
-<img src = "assets/bitBoard.png" width = 34% height = 34%>
+<p align="center">
+    <img src = "assets/Bitboard.png" width = 34% height = 34%>
+</p>
 
 --------------------------------------------------------------------------------------
 
 ### Move Encoding (`Move`)
 The `Move` class is a collection of static methods efficiently encoding and decoding a move action inside a 32-bit `int`. It stores the starting and ending squares, the piece moved, any captured piece, any promotion piece, and some extra flags. This encoding is crucial for optimizing the search algorithms, as it allows for efficient storage and retrieval of move information.
 
-<img src = "assets/move.png" width = 63% height = 63%>
+<p align="center">
+    <img src = "assets/move.png" width = 80% height = 80%>
+</p>
+
 
 --------------------------------------------------------------------------------------
 
@@ -33,7 +38,9 @@ The `MoveGenerator` is a highly optimized engine component responsible for gener
 - **Masks**: The `calculateCheckMask` is used to calculate the check mask (used to determine the only available positions that an ally piece can move to in case of check) for a given board state. The `calculatePinnedMask` method calculates the mask for the pinned pieces (pieces that cannot be moved because it will result in a check)
 - **Move Generation**: At runtime, generating moves consists of calculating check masks and pinned piece masks and then masking the precomputed rays with the occupied squares to quickly extract valid destination squares. As it generates moves, it adds them to a custom MoveList that will be later used to make decisions in the search tree.
 
-<img src = "assets/precomputeMoves.png" width = 63% height = 63%>
+<p align="center">
+    <img src = "assets/precomputeMoves.png" width = 80% height = 80%>
+</p>
 
 --------------------------------------------------------------------------------------
 
@@ -41,9 +48,11 @@ The `MoveGenerator` is a highly optimized engine component responsible for gener
 The project contains different implementations of the bot to allow for iterative improvements in the evaluation and search algorithms.
 - **search/BotV1**: The initial version of the chess-playing algorithm uses random moves to test how the MoveGenerator works.
 - **search/BotV2**: This version of the bot includes an `Evaluation` class and more robust recursive search mechanisms (Minimax algorithm) to find the absolute best move at a given depth. The evaluation process is based on given piece values, so the bot will prioritize captures and promotions.
-- **Perft (Performance Test) Interface**: Located in the search module, is a crucial debugging and verification tool. It generates the total number of possible board permutations up to a specific depth and compares them against the known outputs (stored in test/files/expected.csv). This guarantees that `MoveGenerator` handles complex scenarios (pins, en passant, castling and promotions). I also used it to benchmark the engine, and it reached a speed of 150 million moves per second.
+- **Perft (Performance Test) Interface**: Located in the search module, is a crucial debugging and verification tool. It generates the total number of possible board permutations up to a specific depth and compares them against the known outputs (stored in `FenTranslator.RESULTS`). This guarantees that `MoveGenerator` handles complex scenarios (pins, en passant, castling and promotions). I also used it to benchmark the engine, and it reached a speed of 110 million moves per second.
 
-<img src = "assets/evaluation.png" width = 30% height = 30%>
+<p align="center">
+    <img src = "assets/speed.png" width = 22% height = 22%>
+</p>
 
 --------------------------------------------------------------------------------------
 
@@ -58,4 +67,6 @@ The Graphical User Interface is built using JavaFX to provide an interactive and
   - In `BotVsBotController` I am creating a new thread responsible for the engine calculations and with the help of the method `runLater(Runnable runnable)` from the `Platform` class I can keep the UI responsive as the engine calculates the next move in the background.
   - `PlayerVsBotController` uses a different approach because the method `handleSquareClick(int row,  int col)` only runs when a click event happens, so I can't keep the method running all the time. To navigate around this problem, I am using the `ExecutorService` interface to create a new `Executors.newSingleThreadExecutor()`. By doing this every time the click is pressed the Thread wakes up and runs the method `handleSquareClick(int row,  int col)`.
 
-<img src = "assets/executorService.png" width = 45% height = 45%>
+<p align="center">
+    <img src = "assets/executorService.png" width = 60% height = 60%>
+</p>
