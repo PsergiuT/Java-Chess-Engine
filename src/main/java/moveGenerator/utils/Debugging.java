@@ -1,4 +1,4 @@
-package moveGenerator.utils;
+package MoveGenerator.utils;
 
 public class Debugging {
     private static void printMask(long mask){

@@ -1,12 +1,25 @@
-package controller.loader;
+package Controller.Loader;
 
-import bitboard.Board;
+import Board.Board;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
 public class BoardDisplay {
     private static StackPane[][] squares = new StackPane[8][8];
+
+    public static void updateBoardTimer(Board board, Label blackTimerLabel, Label whiteTimerLabel) {
+        if(blackTimerLabel != null && whiteTimerLabel != null){
+            int minutesWhite = (int) (board.getTimeForWhite() / 60);
+            int secondsWhite = (int) (board.getTimeForWhite() % 60);
+            int minutesBlack = (int) (board.getTimeForBlack() / 60);
+            int secondsBlack = (int) (board.getTimeForBlack() % 60);
+
+            blackTimerLabel.setText(minutesBlack + ":" + secondsBlack);
+            whiteTimerLabel.setText(minutesWhite + ":" + secondsWhite);
+        }
+    }
 
     public static void updateBoardDisplay(StackPane[][] sq, Board board) {
         // Clear all squares
@@ -32,8 +45,6 @@ public class BoardDisplay {
         drawPieces(board.getBlackQueenBoard(), ImageLoader.blackQueenImg);
         drawPieces(board.getBlackKingBoard(), ImageLoader.blackKingImg);
 
-        //blackTimerLabel.setText(board.getTimeForBlack().toString());
-        //whiteTimerLabel.setText(board.getTimeForWhite().toString());
     }
 
 

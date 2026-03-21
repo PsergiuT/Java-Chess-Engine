@@ -1,10 +1,10 @@
-package controller;
+package Controller;
 
-import bitboard.BitBoard;
-import controller.loader.BoardDisplay;
+import Board.BitBoard;
+import Controller.Loader.BoardDisplay;
 import lombok.Setter;
-import moveGenerator.MoveGenerator;
-import search.FenTranslator;
+import MoveGenerator.MoveGenerator;
+import Search.FenTranslator;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
@@ -159,13 +159,20 @@ public class TestBitBoardController {
             int piece = (int) (boardPieces & 1);
 
             //draw piece on grid
-            // i goes 0-63, where 0 is bottom-left (a1), 63 is top-right (h8)
+            // 0-63 - value of i, where 0 is bottom-left (a1), 63 is top-right (h8)
             int row = 7 - (i / 8);      // Reverse row: bottom to top becomes top to bottom for GridPane
             int col = 7 - i % 8;        // Left to right
 
             // Get the label from the grid
             Label cell = (Label) boardGrid.getChildren().get(row * 8 + col);
             cell.setText(piece == 1 ? "1" : "0");
+
+            if(cell.getText().equals("1")){
+                cell.setStyle(cell.getStyle() + "; -fx-background-color: red;");
+            } else {
+                String color = (row + col) % 2 == 0 ? "#f0d9b5" : "#b58863";
+                cell.setStyle("-fx-background-color: " + color + "; -fx-border-color: black; -fx-font-size: 20px;");
+            }
 
             boardPieces >>= 1;
         }

@@ -1,10 +1,12 @@
-import bitboard.BitBoard;
-import search.FenTranslator;
-import search.Perft;
+package Benchmark;
+
+import Board.BitBoard;
+import Search.FenTranslator;
+import Search.Perft;
 
 import java.util.Arrays;
 
-public class Main {
+public class Benchmark {
     private static void TestPerft(){
         BitBoard board = new BitBoard(10);
         String[] FEN = FenTranslator.FENS;
@@ -55,13 +57,5 @@ public class Main {
         System.out.println("remain  :  " + (expected.length - match));
         System.out.println("total   :  " + expected.length );
         System.out.println("-----------------------------------------");
-    }
-
-    public static void main(String[] args) {
-        //TestPerft();
-        //PerftTesting.testing();
-        //TestBoardApplication.main(args);
-        PlayerBotApplication.main(args);
-        BotVsBotApplication.main(args);
     }
 }

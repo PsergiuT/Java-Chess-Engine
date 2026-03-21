@@ -3,6 +3,10 @@ out/
 !src/main/java/main/**/out/
 !src/main/java/test/**/out/
 .kotlin
+build/
+.idea
+.gradle
+gradle
 
 ### Eclipse ###
 .apt_generated

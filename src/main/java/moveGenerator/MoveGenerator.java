@@ -1,8 +1,8 @@
-package moveGenerator;
+package MoveGenerator;
 
-import bitboard.BitBoard;
-import move.Move;
-import move.MoveList;
+import Board.BitBoard;
+import Move.Move;
+import Move.MoveList;
 
 public class MoveGenerator {
 
@@ -93,7 +93,7 @@ public class MoveGenerator {
 
             long pMapEnPassant = pMapCapture;
 
-            pMapMoveAhead &= ~(allPieces);             //move ahead pawns that are blocked by all pieces
+            pMapMoveAhead &= ~(allPieces);              //move ahead pawns that are blocked by all pieces
             pMapCapture &= enemyPieces;                 //capture pawns can only move if enemy pieces are in their way
 
             //only one en passant move can exist per move

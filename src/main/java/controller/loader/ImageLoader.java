@@ -1,4 +1,4 @@
-package controller.loader;
+package Controller.Loader;
 
 import javafx.scene.image.Image;
 
@@ -21,8 +21,7 @@ public class ImageLoader {
 
 
     public static void loadPieceImages() {
-        // Load images from resources folder
-        // Adjust paths according to your project structure
+        // Load images from the resources folder
         try {
             whitePawnImg = new Image(Objects.requireNonNull(ImageLoader.class.getResourceAsStream("/images/white_pawn.png")));
             whiteRookImg = new Image(Objects.requireNonNull(ImageLoader.class.getResourceAsStream("/images/white_rook.png")));

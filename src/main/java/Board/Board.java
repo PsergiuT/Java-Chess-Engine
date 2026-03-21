@@ -1,4 +1,4 @@
-package bitboard;
+package Board;
 
 public interface Board{
      void setWhiteKingCastle(boolean whiteKingCastle);

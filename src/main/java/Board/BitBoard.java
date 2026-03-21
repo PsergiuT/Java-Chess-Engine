@@ -1,6 +1,6 @@
-package bitboard;
+package Board;
 
-import move.Move;
+import Move.Move;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,8 +20,8 @@ public class BitBoard implements Board {
     private int index = 0;
     public boolean isWhiteTurn;
     public boolean isCheckMate;
-    private Double timeLeftForWhite;
-    private Double timeLeftForBlack;
+    private Double timeLeftForWhite;        // in seconds
+    private Double timeLeftForBlack;        // in seconds
     int castlingRights = 0xF;
 
     // castling
@@ -194,8 +194,8 @@ public class BitBoard implements Board {
     public BitBoard(double time) {
         isWhiteTurn = true;
         isCheckMate = false;
-        timeLeftForWhite = time;
-        timeLeftForBlack = time;
+        timeLeftForWhite = time * 60;           //minutes to seconds
+        timeLeftForBlack = time * 60;
 
         board[0] |= 255 << 8;          //Pawn
         board[1] |= 0b01000010;        //Knight

@@ -1,6 +1,6 @@
-package search;
+package Search;
 
-import bitboard.BitBoard;
+import Board.BitBoard;
 
 public class FenTranslator {
 

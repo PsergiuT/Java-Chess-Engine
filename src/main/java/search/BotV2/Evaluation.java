@@ -1,6 +1,6 @@
-package search.BotV2;
+package Search.BotV2;
 
-import bitboard.BitBoard;
+import Board.BitBoard;
 
 public class Evaluation {
     private final static int pawn = 100;

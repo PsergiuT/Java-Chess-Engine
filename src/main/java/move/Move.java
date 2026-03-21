@@ -1,4 +1,4 @@
-package move;
+package Move;
 
 public class Move {
 

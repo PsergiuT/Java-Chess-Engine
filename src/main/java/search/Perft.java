@@ -1,9 +1,9 @@
-package search;
+package Search;
 
-import bitboard.BitBoard;
-import moveGenerator.MoveGenerator;
-import move.Move;
-import move.MoveList;
+import Board.BitBoard;
+import MoveGenerator.MoveGenerator;
+import Move.Move;
+import Move.MoveList;
 
 public class Perft {
     public static long count_nodes(BitBoard board, int depth){

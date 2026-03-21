@@ -1,4 +1,4 @@
-package search.testing;
+package Search.testing;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

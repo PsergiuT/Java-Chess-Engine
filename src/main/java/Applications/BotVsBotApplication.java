@@ -1,3 +1,5 @@
+package Applications;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -12,8 +14,10 @@ public class BotVsBotApplication extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/bot-vs-bot.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
+        scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
         stage.setTitle("Bot VS Bot");
         stage.setScene(scene);
+        stage.setFullScreen(true);
 
         stage.show();
     }

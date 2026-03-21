@@ -1,5 +1,7 @@
-import bitboard.BitBoard;
-import controller.PlayerBotController;
+package Applications;
+
+import Board.BitBoard;
+import Controller.PlayerBotController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -13,8 +15,10 @@ public class PlayerBotApplication extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/player-bot-board.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
+        scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
         stage.setTitle("Player Bot Page");
         stage.setScene(scene);
+        stage.setFullScreen(true);
 
         BitBoard board = new BitBoard(10);
         PlayerBotController controller = fxmlLoader.getController();

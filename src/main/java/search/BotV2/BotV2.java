@@ -1,8 +1,8 @@
-package search.BotV2;
+package Search.BotV2;
 
-import bitboard.BitBoard;
-import moveGenerator.MoveGenerator;
-import move.MoveList;
+import Board.BitBoard;
+import MoveGenerator.MoveGenerator;
+import Move.MoveList;
 import lombok.Getter;
 
 public class BotV2 {

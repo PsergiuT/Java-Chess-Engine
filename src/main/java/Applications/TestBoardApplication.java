@@ -1,5 +1,7 @@
-import bitboard.BitBoard;
-import controller.TestBitBoardController;
+package Applications;
+
+import Board.BitBoard;
+import Controller.TestBitBoardController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,6 +17,7 @@ public class TestBoardApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Test Board Page");
         stage.setScene(scene);
+        stage.setFullScreen(true);
 
         BitBoard board = new BitBoard(10);
         TestBitBoardController controller = fxmlLoader.getController();

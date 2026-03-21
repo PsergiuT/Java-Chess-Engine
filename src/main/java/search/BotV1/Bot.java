@@ -1,8 +1,8 @@
-package search.BotV1;
+package Search.BotV1;
 
-import bitboard.BitBoard;
-import moveGenerator.MoveGenerator;
-import move.MoveList;
+import Board.BitBoard;
+import MoveGenerator.MoveGenerator;
+import Move.MoveList;
 import java.util.Random;
 
 public class Bot {

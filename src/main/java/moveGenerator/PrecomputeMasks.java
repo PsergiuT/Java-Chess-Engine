@@ -1,6 +1,6 @@
-package moveGenerator;
+package MoveGenerator;
 
-import bitboard.BitBoard;
+import Board.BitBoard;
 
 public class PrecomputeMasks {
     public final static long[] knightMoves = PrecomputeMoves.knightMoves;

@@ -1,4 +1,4 @@
-package moveGenerator;
+package MoveGenerator;
 
 public class PrecomputeMoves {
     public final static long[] knightMoves = new long[64];
