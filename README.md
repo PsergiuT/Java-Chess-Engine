@@ -1,4 +1,4 @@
-# Chess Bot
+# Chess Engine
 
 This project is a high-performance, custom-built Chess Engine implemented in Java. It features an optimized bitboard representation, move generator, and search algorithms for the bot implementations.
 I chose this project idea because I wanted to build a strong foundation in the java architecture and memory optimization.
@@ -70,3 +70,10 @@ The Graphical User Interface is built using JavaFX to provide an interactive and
 <p align="center">
     <img src = "assets/executorService.png" width = 60% height = 60%>
 </p>
+
+--------------------------------------------------------------------------------------
+
+### Running the project
+
+To run this project you can install the `ChessBot.zip` archive from `app/ChessBot.zip` and execute the `ChessBot.exe` file.
+
